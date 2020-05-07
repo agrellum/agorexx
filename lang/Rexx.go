@@ -138,6 +138,7 @@ func RxFromInt(num int) (rcvr *Rexx) {
 	rcvr.ind = isneg
 	rcvr.chars = nil
 	rcvr.dig = 10
+	//FIXME −9223372036854775808L
 	//FIXME -2147483648L
 	if num == int(-2147483648) && strconv.IntSize == 64 {
 		rcvr.mant = []rune("2147483648")
@@ -641,6 +642,7 @@ func (rcvr *Rexx) ToInt64() (int64, error) {
 		}
 		if result < lastresult {
 			if rcvr.ind < 0 {
+				//if result == math.MinInt32 { //FIXME 386
 				if result == math.MinInt64 { //FIXME
 					if i == lodigit+useexp {
 						return int64(result), nil
@@ -668,7 +670,6 @@ func (rcvr *Rexx) ToFloat32() (float32, error) {
 	return float32(dub), nil
 }
 func (rcvr *Rexx) ToFloat64() (float64, error) {
-	var dub float64
 	if rcvr.ind == NotaNum {
 		return 0, RxException(9, string(rcvr.chars))
 	}
@@ -676,12 +677,12 @@ func (rcvr *Rexx) ToFloat64() (float64, error) {
 		rcvr.chars = rcvr.layout()
 	}
 	dub, err := strconv.ParseFloat(string(rcvr.chars), 64)
-	//dub, err := strconv.ParseFloat(string(rcvr.chars), 32)
-	if err != nil { //FIXME
-		return 0, err
-	}
-	if math.IsInf(dub, 0) {
-		return 0, RxException(9, "Overflow")
+	if err != nil {
+		if math.IsInf(dub, 0) {
+			return 0, RxException(9, "Overflow")
+		} else {
+			return 0, err
+		}
 	}
 	return dub, nil
 }
@@ -2816,7 +2817,7 @@ func charaddsub(a []rune, b []rune, m int) []rune {
 	}
 	_new := make([]rune, maxarr+2)
 	_new[0] = rune(carry + int('0'))
-	copy(_new[1:], res) //FIXME
+	copy(_new[1:], res)
 	return _new
 }
 func (rcvr *Rexx) concat(set *RexxSet, rhs *Rexx, blanks int) *Rexx {

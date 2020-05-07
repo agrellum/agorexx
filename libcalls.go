@@ -5,7 +5,10 @@ import "strings"
 import "strconv"
 import "math"
 
+//import "runtime"
+
 import "agorexx/lang"
+
 import "reflect"
 import "unicode"
 
@@ -322,6 +325,7 @@ func main() {
 	if !(opcc.ToString() == "10") {
 		lang.SayString("BUG1069")
 	}
+
 	opccblank := one.OpCcblank(rexx_set, zero)
 	if !(opccblank.ToString() == "1 0") {
 		lang.SayString("BUG1070")
@@ -330,6 +334,12 @@ func main() {
 	if !(opdiv.ToString() == "0.5") {
 		lang.SayString("BUG1071")
 	}
+
+	opdiv, err = one.OpDiv(rexx_set, lower_a)
+
+	//opdiv, err = lang.RxFromString("-34359738368").OpDiv(nil, lang.RxFromInt8(int8(-128)))
+	//opdiv, err = lower_a.OpDiv(rexx_set, two)
+
 	opdivi, err := three.OpDivI(rexx_set, two)
 	if !(opdivi.ToString() == "1") {
 		lang.SayString("BUG1072")
@@ -600,6 +610,12 @@ func main() {
 	if err == nil {
 		lang.SayString("BUG4135")
 	}
+	opmult, err = a.OpMult(rexx_set, lower_a)
+	if err == nil {
+		lang.SayString("BUG5135")
+	}
+	opmult, err = lang.RxFromInt8(int8(-128)).OpMult(nil, lang.RxFromString("-34359738368"))
+
 	opnot, err := one.OpNot(rexx_set)
 	if opnot {
 		lang.SayString("BUG1136")
@@ -608,6 +624,9 @@ func main() {
 	if !opnot {
 		lang.SayString("BUG1137")
 	}
+
+	opnot, err = lower_a.OpNot(rexx_set)
+
 	opnoteq, err := one.OpNotEq(rexx_set, two)
 	if !opnoteq {
 		lang.SayString("BUG1138")
@@ -685,6 +704,10 @@ func main() {
 	if err != nil {
 		lang.SayString("BUG5153")
 	}
+
+	oppow, err = lang.RxFromString("-34359738368").OpPow(nil, lang.RxFromInt8(int8(-128)))
+	oppow, err = lang.RxFromInt8(int8(-128)).OpPow(nil, lang.RxFromString("-34359738368"))
+
 	oprem, err := a.OpRem(rexx_set, b)
 	if !(oprem.ToString() == "16") {
 		lang.SayString("BUG1154")
@@ -1391,6 +1414,7 @@ func main() {
 	if !(datatype.ToString() == "0") {
 		lang.SayString("BUG1313")
 	}
+
 	// tests for golang identifiers using datatype
 	datatype, err = lang.RxFromString("@_is_start").DataType(lang.RxFromRune('S'))
 	if !(datatype.ToString() == "0") {
@@ -3024,640 +3048,6 @@ func main() {
 	//~ fmt.Println(err)
 	//~ fmt.Println(orxnan)
 
-	fmt.Println(lang.RxFromString("\u0030").ToInt())
-	fmt.Println(lang.RxFromString("\u0031").ToInt())
-	fmt.Println(lang.RxFromString("\u0032").ToInt())
-	fmt.Println(lang.RxFromString("\u0033").ToInt())
-	fmt.Println(lang.RxFromString("\u0034").ToInt())
-	fmt.Println(lang.RxFromString("\u0035").ToInt())
-	fmt.Println(lang.RxFromString("\u0036").ToInt())
-	fmt.Println(lang.RxFromString("\u0037").ToInt())
-	fmt.Println(lang.RxFromString("\u0038").ToInt())
-	fmt.Println(lang.RxFromString("\u0039").ToInt())
-	fmt.Println(lang.RxFromString("\u0660").ToInt())
-	fmt.Println(lang.RxFromString("\u0661").ToInt())
-	fmt.Println(lang.RxFromString("\u0662").ToInt())
-	fmt.Println(lang.RxFromString("\u0663").ToInt())
-	fmt.Println(lang.RxFromString("\u0664").ToInt())
-	fmt.Println(lang.RxFromString("\u0665").ToInt())
-	fmt.Println(lang.RxFromString("\u0666").ToInt())
-	fmt.Println(lang.RxFromString("\u0667").ToInt())
-	fmt.Println(lang.RxFromString("\u0668").ToInt())
-	fmt.Println(lang.RxFromString("\u0669").ToInt())
-	fmt.Println(lang.RxFromString("\u06F0").ToInt())
-	fmt.Println(lang.RxFromString("\u06F1").ToInt())
-	fmt.Println(lang.RxFromString("\u06F2").ToInt())
-	fmt.Println(lang.RxFromString("\u06F3").ToInt())
-	fmt.Println(lang.RxFromString("\u06F4").ToInt())
-	fmt.Println(lang.RxFromString("\u06F5").ToInt())
-	fmt.Println(lang.RxFromString("\u06F6").ToInt())
-	fmt.Println(lang.RxFromString("\u06F7").ToInt())
-	fmt.Println(lang.RxFromString("\u06F8").ToInt())
-	fmt.Println(lang.RxFromString("\u06F9").ToInt())
-	fmt.Println(lang.RxFromString("\u07C0").ToInt())
-	fmt.Println(lang.RxFromString("\u07C1").ToInt())
-	fmt.Println(lang.RxFromString("\u07C2").ToInt())
-	fmt.Println(lang.RxFromString("\u07C3").ToInt())
-	fmt.Println(lang.RxFromString("\u07C4").ToInt())
-	fmt.Println(lang.RxFromString("\u07C5").ToInt())
-	fmt.Println(lang.RxFromString("\u07C6").ToInt())
-	fmt.Println(lang.RxFromString("\u07C7").ToInt())
-	fmt.Println(lang.RxFromString("\u07C8").ToInt())
-	fmt.Println(lang.RxFromString("\u07C9").ToInt())
-	fmt.Println(lang.RxFromString("\u0966").ToInt())
-	fmt.Println(lang.RxFromString("\u0967").ToInt())
-	fmt.Println(lang.RxFromString("\u0968").ToInt())
-	fmt.Println(lang.RxFromString("\u0969").ToInt())
-	fmt.Println(lang.RxFromString("\u096A").ToInt())
-	fmt.Println(lang.RxFromString("\u096B").ToInt())
-	fmt.Println(lang.RxFromString("\u096C").ToInt())
-	fmt.Println(lang.RxFromString("\u096D").ToInt())
-	fmt.Println(lang.RxFromString("\u096E").ToInt())
-	fmt.Println(lang.RxFromString("\u096F").ToInt())
-	fmt.Println(lang.RxFromString("\u09E6").ToInt())
-	fmt.Println(lang.RxFromString("\u09E7").ToInt())
-	fmt.Println(lang.RxFromString("\u09E8").ToInt())
-	fmt.Println(lang.RxFromString("\u09E9").ToInt())
-	fmt.Println(lang.RxFromString("\u09EA").ToInt())
-	fmt.Println(lang.RxFromString("\u09EB").ToInt())
-	fmt.Println(lang.RxFromString("\u09EC").ToInt())
-	fmt.Println(lang.RxFromString("\u09ED").ToInt())
-	fmt.Println(lang.RxFromString("\u09EE").ToInt())
-	fmt.Println(lang.RxFromString("\u09EF").ToInt())
-	fmt.Println(lang.RxFromString("\u0A66").ToInt())
-	fmt.Println(lang.RxFromString("\u0A67").ToInt())
-	fmt.Println(lang.RxFromString("\u0A68").ToInt())
-	fmt.Println(lang.RxFromString("\u0A69").ToInt())
-	fmt.Println(lang.RxFromString("\u0A6A").ToInt())
-	fmt.Println(lang.RxFromString("\u0A6B").ToInt())
-	fmt.Println(lang.RxFromString("\u0A6C").ToInt())
-	fmt.Println(lang.RxFromString("\u0A6D").ToInt())
-	fmt.Println(lang.RxFromString("\u0A6E").ToInt())
-	fmt.Println(lang.RxFromString("\u0A6F").ToInt())
-	fmt.Println(lang.RxFromString("\u0AE6").ToInt())
-	fmt.Println(lang.RxFromString("\u0AE7").ToInt())
-	fmt.Println(lang.RxFromString("\u0AE8").ToInt())
-	fmt.Println(lang.RxFromString("\u0AE9").ToInt())
-	fmt.Println(lang.RxFromString("\u0AEA").ToInt())
-	fmt.Println(lang.RxFromString("\u0AEB").ToInt())
-	fmt.Println(lang.RxFromString("\u0AEC").ToInt())
-	fmt.Println(lang.RxFromString("\u0AED").ToInt())
-	fmt.Println(lang.RxFromString("\u0AEE").ToInt())
-	fmt.Println(lang.RxFromString("\u0AEF").ToInt())
-	fmt.Println(lang.RxFromString("\u0B66").ToInt())
-	fmt.Println(lang.RxFromString("\u0B67").ToInt())
-	fmt.Println(lang.RxFromString("\u0B68").ToInt())
-	fmt.Println(lang.RxFromString("\u0B69").ToInt())
-	fmt.Println(lang.RxFromString("\u0B6A").ToInt())
-	fmt.Println(lang.RxFromString("\u0B6B").ToInt())
-	fmt.Println(lang.RxFromString("\u0B6C").ToInt())
-	fmt.Println(lang.RxFromString("\u0B6D").ToInt())
-	fmt.Println(lang.RxFromString("\u0B6E").ToInt())
-	fmt.Println(lang.RxFromString("\u0B6F").ToInt())
-	fmt.Println(lang.RxFromString("\u0BE6").ToInt())
-	fmt.Println(lang.RxFromString("\u0BE7").ToInt())
-	fmt.Println(lang.RxFromString("\u0BE8").ToInt())
-	fmt.Println(lang.RxFromString("\u0BE9").ToInt())
-	fmt.Println(lang.RxFromString("\u0BEA").ToInt())
-	fmt.Println(lang.RxFromString("\u0BEB").ToInt())
-	fmt.Println(lang.RxFromString("\u0BEC").ToInt())
-	fmt.Println(lang.RxFromString("\u0BED").ToInt())
-	fmt.Println(lang.RxFromString("\u0BEE").ToInt())
-	fmt.Println(lang.RxFromString("\u0BEF").ToInt())
-	fmt.Println(lang.RxFromString("\u0C66").ToInt())
-	fmt.Println(lang.RxFromString("\u0C67").ToInt())
-	fmt.Println(lang.RxFromString("\u0C68").ToInt())
-	fmt.Println(lang.RxFromString("\u0C69").ToInt())
-	fmt.Println(lang.RxFromString("\u0C6A").ToInt())
-	fmt.Println(lang.RxFromString("\u0C6B").ToInt())
-	fmt.Println(lang.RxFromString("\u0C6C").ToInt())
-	fmt.Println(lang.RxFromString("\u0C6D").ToInt())
-	fmt.Println(lang.RxFromString("\u0C6E").ToInt())
-	fmt.Println(lang.RxFromString("\u0C6F").ToInt())
-	fmt.Println(lang.RxFromString("\u0CE6").ToInt())
-	fmt.Println(lang.RxFromString("\u0CE7").ToInt())
-	fmt.Println(lang.RxFromString("\u0CE8").ToInt())
-	fmt.Println(lang.RxFromString("\u0CE9").ToInt())
-	fmt.Println(lang.RxFromString("\u0CEA").ToInt())
-	fmt.Println(lang.RxFromString("\u0CEB").ToInt())
-	fmt.Println(lang.RxFromString("\u0CEC").ToInt())
-	fmt.Println(lang.RxFromString("\u0CED").ToInt())
-	fmt.Println(lang.RxFromString("\u0CEE").ToInt())
-	fmt.Println(lang.RxFromString("\u0CEF").ToInt())
-	fmt.Println(lang.RxFromString("\u0D66").ToInt())
-	fmt.Println(lang.RxFromString("\u0D67").ToInt())
-	fmt.Println(lang.RxFromString("\u0D68").ToInt())
-	fmt.Println(lang.RxFromString("\u0D69").ToInt())
-	fmt.Println(lang.RxFromString("\u0D6A").ToInt())
-	fmt.Println(lang.RxFromString("\u0D6B").ToInt())
-	fmt.Println(lang.RxFromString("\u0D6C").ToInt())
-	fmt.Println(lang.RxFromString("\u0D6D").ToInt())
-	fmt.Println(lang.RxFromString("\u0D6E").ToInt())
-	fmt.Println(lang.RxFromString("\u0D6F").ToInt())
-	fmt.Println(lang.RxFromString("\u0DE6").ToInt())
-	fmt.Println(lang.RxFromString("\u0DE7").ToInt())
-	fmt.Println(lang.RxFromString("\u0DE8").ToInt())
-	fmt.Println(lang.RxFromString("\u0DE9").ToInt())
-	fmt.Println(lang.RxFromString("\u0DEA").ToInt())
-	fmt.Println(lang.RxFromString("\u0DEB").ToInt())
-	fmt.Println(lang.RxFromString("\u0DEC").ToInt())
-	fmt.Println(lang.RxFromString("\u0DED").ToInt())
-	fmt.Println(lang.RxFromString("\u0DEE").ToInt())
-	fmt.Println(lang.RxFromString("\u0DEF").ToInt())
-	fmt.Println(lang.RxFromString("\u0E50").ToInt())
-	fmt.Println(lang.RxFromString("\u0E51").ToInt())
-	fmt.Println(lang.RxFromString("\u0E52").ToInt())
-	fmt.Println(lang.RxFromString("\u0E53").ToInt())
-	fmt.Println(lang.RxFromString("\u0E54").ToInt())
-	fmt.Println(lang.RxFromString("\u0E55").ToInt())
-	fmt.Println(lang.RxFromString("\u0E56").ToInt())
-	fmt.Println(lang.RxFromString("\u0E57").ToInt())
-	fmt.Println(lang.RxFromString("\u0E58").ToInt())
-	fmt.Println(lang.RxFromString("\u0E59").ToInt())
-	fmt.Println(lang.RxFromString("\u0ED0").ToInt())
-	fmt.Println(lang.RxFromString("\u0ED1").ToInt())
-	fmt.Println(lang.RxFromString("\u0ED2").ToInt())
-	fmt.Println(lang.RxFromString("\u0ED3").ToInt())
-	fmt.Println(lang.RxFromString("\u0ED4").ToInt())
-	fmt.Println(lang.RxFromString("\u0ED5").ToInt())
-	fmt.Println(lang.RxFromString("\u0ED6").ToInt())
-	fmt.Println(lang.RxFromString("\u0ED7").ToInt())
-	fmt.Println(lang.RxFromString("\u0ED8").ToInt())
-	fmt.Println(lang.RxFromString("\u0ED9").ToInt())
-	fmt.Println(lang.RxFromString("\u0F20").ToInt())
-	fmt.Println(lang.RxFromString("\u0F21").ToInt())
-	fmt.Println(lang.RxFromString("\u0F22").ToInt())
-	fmt.Println(lang.RxFromString("\u0F23").ToInt())
-	fmt.Println(lang.RxFromString("\u0F24").ToInt())
-	fmt.Println(lang.RxFromString("\u0F25").ToInt())
-	fmt.Println(lang.RxFromString("\u0F26").ToInt())
-	fmt.Println(lang.RxFromString("\u0F27").ToInt())
-	fmt.Println(lang.RxFromString("\u0F28").ToInt())
-	fmt.Println(lang.RxFromString("\u0F29").ToInt())
-	fmt.Println(lang.RxFromString("\u1040").ToInt())
-	fmt.Println(lang.RxFromString("\u1041").ToInt())
-	fmt.Println(lang.RxFromString("\u1042").ToInt())
-	fmt.Println(lang.RxFromString("\u1043").ToInt())
-	fmt.Println(lang.RxFromString("\u1044").ToInt())
-	fmt.Println(lang.RxFromString("\u1045").ToInt())
-	fmt.Println(lang.RxFromString("\u1046").ToInt())
-	fmt.Println(lang.RxFromString("\u1047").ToInt())
-	fmt.Println(lang.RxFromString("\u1048").ToInt())
-	fmt.Println(lang.RxFromString("\u1049").ToInt())
-	fmt.Println(lang.RxFromString("\u1090").ToInt())
-	fmt.Println(lang.RxFromString("\u1091").ToInt())
-	fmt.Println(lang.RxFromString("\u1092").ToInt())
-	fmt.Println(lang.RxFromString("\u1093").ToInt())
-	fmt.Println(lang.RxFromString("\u1094").ToInt())
-	fmt.Println(lang.RxFromString("\u1095").ToInt())
-	fmt.Println(lang.RxFromString("\u1096").ToInt())
-	fmt.Println(lang.RxFromString("\u1097").ToInt())
-	fmt.Println(lang.RxFromString("\u1098").ToInt())
-	fmt.Println(lang.RxFromString("\u1099").ToInt())
-	fmt.Println(lang.RxFromString("\u17E0").ToInt())
-	fmt.Println(lang.RxFromString("\u17E1").ToInt())
-	fmt.Println(lang.RxFromString("\u17E2").ToInt())
-	fmt.Println(lang.RxFromString("\u17E3").ToInt())
-	fmt.Println(lang.RxFromString("\u17E4").ToInt())
-	fmt.Println(lang.RxFromString("\u17E5").ToInt())
-	fmt.Println(lang.RxFromString("\u17E6").ToInt())
-	fmt.Println(lang.RxFromString("\u17E7").ToInt())
-	fmt.Println(lang.RxFromString("\u17E8").ToInt())
-	fmt.Println(lang.RxFromString("\u17E9").ToInt())
-	fmt.Println(lang.RxFromString("\u1810").ToInt())
-	fmt.Println(lang.RxFromString("\u1811").ToInt())
-	fmt.Println(lang.RxFromString("\u1812").ToInt())
-	fmt.Println(lang.RxFromString("\u1813").ToInt())
-	fmt.Println(lang.RxFromString("\u1814").ToInt())
-	fmt.Println(lang.RxFromString("\u1815").ToInt())
-	fmt.Println(lang.RxFromString("\u1816").ToInt())
-	fmt.Println(lang.RxFromString("\u1817").ToInt())
-	fmt.Println(lang.RxFromString("\u1818").ToInt())
-	fmt.Println(lang.RxFromString("\u1819").ToInt())
-	fmt.Println(lang.RxFromString("\u1946").ToInt())
-	fmt.Println(lang.RxFromString("\u1947").ToInt())
-	fmt.Println(lang.RxFromString("\u1948").ToInt())
-	fmt.Println(lang.RxFromString("\u1949").ToInt())
-	fmt.Println(lang.RxFromString("\u194A").ToInt())
-	fmt.Println(lang.RxFromString("\u194B").ToInt())
-	fmt.Println(lang.RxFromString("\u194C").ToInt())
-	fmt.Println(lang.RxFromString("\u194D").ToInt())
-	fmt.Println(lang.RxFromString("\u194E").ToInt())
-	fmt.Println(lang.RxFromString("\u194F").ToInt())
-	fmt.Println(lang.RxFromString("\u19D0").ToInt())
-	fmt.Println(lang.RxFromString("\u19D1").ToInt())
-	fmt.Println(lang.RxFromString("\u19D2").ToInt())
-	fmt.Println(lang.RxFromString("\u19D3").ToInt())
-	fmt.Println(lang.RxFromString("\u19D4").ToInt())
-	fmt.Println(lang.RxFromString("\u19D5").ToInt())
-	fmt.Println(lang.RxFromString("\u19D6").ToInt())
-	fmt.Println(lang.RxFromString("\u19D7").ToInt())
-	fmt.Println(lang.RxFromString("\u19D8").ToInt())
-	fmt.Println(lang.RxFromString("\u19D9").ToInt())
-	fmt.Println(lang.RxFromString("\u1A80").ToInt())
-	fmt.Println(lang.RxFromString("\u1A81").ToInt())
-	fmt.Println(lang.RxFromString("\u1A82").ToInt())
-	fmt.Println(lang.RxFromString("\u1A83").ToInt())
-	fmt.Println(lang.RxFromString("\u1A84").ToInt())
-	fmt.Println(lang.RxFromString("\u1A85").ToInt())
-	fmt.Println(lang.RxFromString("\u1A86").ToInt())
-	fmt.Println(lang.RxFromString("\u1A87").ToInt())
-	fmt.Println(lang.RxFromString("\u1A88").ToInt())
-	fmt.Println(lang.RxFromString("\u1A89").ToInt())
-	fmt.Println(lang.RxFromString("\u1A90").ToInt())
-	fmt.Println(lang.RxFromString("\u1A91").ToInt())
-	fmt.Println(lang.RxFromString("\u1A92").ToInt())
-	fmt.Println(lang.RxFromString("\u1A93").ToInt())
-	fmt.Println(lang.RxFromString("\u1A94").ToInt())
-	fmt.Println(lang.RxFromString("\u1A95").ToInt())
-	fmt.Println(lang.RxFromString("\u1A96").ToInt())
-	fmt.Println(lang.RxFromString("\u1A97").ToInt())
-	fmt.Println(lang.RxFromString("\u1A98").ToInt())
-	fmt.Println(lang.RxFromString("\u1A99").ToInt())
-	fmt.Println(lang.RxFromString("\u1B50").ToInt())
-	fmt.Println(lang.RxFromString("\u1B51").ToInt())
-	fmt.Println(lang.RxFromString("\u1B52").ToInt())
-	fmt.Println(lang.RxFromString("\u1B53").ToInt())
-	fmt.Println(lang.RxFromString("\u1B54").ToInt())
-	fmt.Println(lang.RxFromString("\u1B55").ToInt())
-	fmt.Println(lang.RxFromString("\u1B56").ToInt())
-	fmt.Println(lang.RxFromString("\u1B57").ToInt())
-	fmt.Println(lang.RxFromString("\u1B58").ToInt())
-	fmt.Println(lang.RxFromString("\u1B59").ToInt())
-	fmt.Println(lang.RxFromString("\u1BB0").ToInt())
-	fmt.Println(lang.RxFromString("\u1BB1").ToInt())
-	fmt.Println(lang.RxFromString("\u1BB2").ToInt())
-	fmt.Println(lang.RxFromString("\u1BB3").ToInt())
-	fmt.Println(lang.RxFromString("\u1BB4").ToInt())
-	fmt.Println(lang.RxFromString("\u1BB5").ToInt())
-	fmt.Println(lang.RxFromString("\u1BB6").ToInt())
-	fmt.Println(lang.RxFromString("\u1BB7").ToInt())
-	fmt.Println(lang.RxFromString("\u1BB8").ToInt())
-	fmt.Println(lang.RxFromString("\u1BB9").ToInt())
-	fmt.Println(lang.RxFromString("\u1C40").ToInt())
-	fmt.Println(lang.RxFromString("\u1C41").ToInt())
-	fmt.Println(lang.RxFromString("\u1C42").ToInt())
-	fmt.Println(lang.RxFromString("\u1C43").ToInt())
-	fmt.Println(lang.RxFromString("\u1C44").ToInt())
-	fmt.Println(lang.RxFromString("\u1C45").ToInt())
-	fmt.Println(lang.RxFromString("\u1C46").ToInt())
-	fmt.Println(lang.RxFromString("\u1C47").ToInt())
-	fmt.Println(lang.RxFromString("\u1C48").ToInt())
-	fmt.Println(lang.RxFromString("\u1C49").ToInt())
-	fmt.Println(lang.RxFromString("\u1C50").ToInt())
-	fmt.Println(lang.RxFromString("\u1C51").ToInt())
-	fmt.Println(lang.RxFromString("\u1C52").ToInt())
-	fmt.Println(lang.RxFromString("\u1C53").ToInt())
-	fmt.Println(lang.RxFromString("\u1C54").ToInt())
-	fmt.Println(lang.RxFromString("\u1C55").ToInt())
-	fmt.Println(lang.RxFromString("\u1C56").ToInt())
-	fmt.Println(lang.RxFromString("\u1C57").ToInt())
-	fmt.Println(lang.RxFromString("\u1C58").ToInt())
-	fmt.Println(lang.RxFromString("\u1C59").ToInt())
-	fmt.Println(lang.RxFromString("\uA620").ToInt())
-	fmt.Println(lang.RxFromString("\uA621").ToInt())
-	fmt.Println(lang.RxFromString("\uA622").ToInt())
-	fmt.Println(lang.RxFromString("\uA623").ToInt())
-	fmt.Println(lang.RxFromString("\uA624").ToInt())
-	fmt.Println(lang.RxFromString("\uA625").ToInt())
-	fmt.Println(lang.RxFromString("\uA626").ToInt())
-	fmt.Println(lang.RxFromString("\uA627").ToInt())
-	fmt.Println(lang.RxFromString("\uA628").ToInt())
-	fmt.Println(lang.RxFromString("\uA629").ToInt())
-	fmt.Println(lang.RxFromString("\uA8D0").ToInt())
-	fmt.Println(lang.RxFromString("\uA8D1").ToInt())
-	fmt.Println(lang.RxFromString("\uA8D2").ToInt())
-	fmt.Println(lang.RxFromString("\uA8D3").ToInt())
-	fmt.Println(lang.RxFromString("\uA8D4").ToInt())
-	fmt.Println(lang.RxFromString("\uA8D5").ToInt())
-	fmt.Println(lang.RxFromString("\uA8D6").ToInt())
-	fmt.Println(lang.RxFromString("\uA8D7").ToInt())
-	fmt.Println(lang.RxFromString("\uA8D8").ToInt())
-	fmt.Println(lang.RxFromString("\uA8D9").ToInt())
-	fmt.Println(lang.RxFromString("\uA900").ToInt())
-	fmt.Println(lang.RxFromString("\uA901").ToInt())
-	fmt.Println(lang.RxFromString("\uA902").ToInt())
-	fmt.Println(lang.RxFromString("\uA903").ToInt())
-	fmt.Println(lang.RxFromString("\uA904").ToInt())
-	fmt.Println(lang.RxFromString("\uA905").ToInt())
-	fmt.Println(lang.RxFromString("\uA906").ToInt())
-	fmt.Println(lang.RxFromString("\uA907").ToInt())
-	fmt.Println(lang.RxFromString("\uA908").ToInt())
-	fmt.Println(lang.RxFromString("\uA909").ToInt())
-	fmt.Println(lang.RxFromString("\uA9D0").ToInt())
-	fmt.Println(lang.RxFromString("\uA9D1").ToInt())
-	fmt.Println(lang.RxFromString("\uA9D2").ToInt())
-	fmt.Println(lang.RxFromString("\uA9D3").ToInt())
-	fmt.Println(lang.RxFromString("\uA9D4").ToInt())
-	fmt.Println(lang.RxFromString("\uA9D5").ToInt())
-	fmt.Println(lang.RxFromString("\uA9D6").ToInt())
-	fmt.Println(lang.RxFromString("\uA9D7").ToInt())
-	fmt.Println(lang.RxFromString("\uA9D8").ToInt())
-	fmt.Println(lang.RxFromString("\uA9D9").ToInt())
-	fmt.Println(lang.RxFromString("\uA9F0").ToInt())
-	fmt.Println(lang.RxFromString("\uA9F1").ToInt())
-	fmt.Println(lang.RxFromString("\uA9F2").ToInt())
-	fmt.Println(lang.RxFromString("\uA9F3").ToInt())
-	fmt.Println(lang.RxFromString("\uA9F4").ToInt())
-	fmt.Println(lang.RxFromString("\uA9F5").ToInt())
-	fmt.Println(lang.RxFromString("\uA9F6").ToInt())
-	fmt.Println(lang.RxFromString("\uA9F7").ToInt())
-	fmt.Println(lang.RxFromString("\uA9F8").ToInt())
-	fmt.Println(lang.RxFromString("\uA9F9").ToInt())
-	fmt.Println(lang.RxFromString("\uAA50").ToInt())
-	fmt.Println(lang.RxFromString("\uAA51").ToInt())
-	fmt.Println(lang.RxFromString("\uAA52").ToInt())
-	fmt.Println(lang.RxFromString("\uAA53").ToInt())
-	fmt.Println(lang.RxFromString("\uAA54").ToInt())
-	fmt.Println(lang.RxFromString("\uAA55").ToInt())
-	fmt.Println(lang.RxFromString("\uAA56").ToInt())
-	fmt.Println(lang.RxFromString("\uAA57").ToInt())
-	fmt.Println(lang.RxFromString("\uAA58").ToInt())
-	fmt.Println(lang.RxFromString("\uAA59").ToInt())
-	fmt.Println(lang.RxFromString("\uABF0").ToInt())
-	fmt.Println(lang.RxFromString("\uABF1").ToInt())
-	fmt.Println(lang.RxFromString("\uABF2").ToInt())
-	fmt.Println(lang.RxFromString("\uABF3").ToInt())
-	fmt.Println(lang.RxFromString("\uABF4").ToInt())
-	fmt.Println(lang.RxFromString("\uABF5").ToInt())
-	fmt.Println(lang.RxFromString("\uABF6").ToInt())
-	fmt.Println(lang.RxFromString("\uABF7").ToInt())
-	fmt.Println(lang.RxFromString("\uABF8").ToInt())
-	fmt.Println(lang.RxFromString("\uABF9").ToInt())
-	fmt.Println(lang.RxFromString("\uFF10").ToInt())
-	fmt.Println(lang.RxFromString("\uFF11").ToInt())
-	fmt.Println(lang.RxFromString("\uFF12").ToInt())
-	fmt.Println(lang.RxFromString("\uFF13").ToInt())
-	fmt.Println(lang.RxFromString("\uFF14").ToInt())
-	fmt.Println(lang.RxFromString("\uFF15").ToInt())
-	fmt.Println(lang.RxFromString("\uFF16").ToInt())
-	fmt.Println(lang.RxFromString("\uFF17").ToInt())
-	fmt.Println(lang.RxFromString("\uFF18").ToInt())
-	fmt.Println(lang.RxFromString("\uFF19").ToInt())
-
-	fmt.Println(lang.RxFromRune(0x104A0).ToInt())
-	fmt.Println(lang.RxFromRune(0x104A1).ToInt())
-	fmt.Println(lang.RxFromRune(0x104A2).ToInt())
-	fmt.Println(lang.RxFromRune(0x104A3).ToInt())
-	fmt.Println(lang.RxFromRune(0x104A4).ToInt())
-	fmt.Println(lang.RxFromRune(0x104A5).ToInt())
-	fmt.Println(lang.RxFromRune(0x104A6).ToInt())
-	fmt.Println(lang.RxFromRune(0x104A7).ToInt())
-	fmt.Println(lang.RxFromRune(0x104A8).ToInt())
-	fmt.Println(lang.RxFromRune(0x104A9).ToInt())
-	//~ fmt.Println(lang.RxFromRune(0x10D30).ToInt())
-	//~ fmt.Println(lang.RxFromRune(0x10D31).ToInt())
-	//~ fmt.Println(lang.RxFromRune(0x10D32).ToInt())
-	//~ fmt.Println(lang.RxFromRune(0x10D33).ToInt())
-	//~ fmt.Println(lang.RxFromRune(0x10D34).ToInt())
-	//~ fmt.Println(lang.RxFromRune(0x10D35).ToInt())
-	//~ fmt.Println(lang.RxFromRune(0x10D36).ToInt())
-	//~ fmt.Println(lang.RxFromRune(0x10D37).ToInt())
-	//~ fmt.Println(lang.RxFromRune(0x10D38).ToInt())
-	//~ fmt.Println(lang.RxFromRune(0x10D39).ToInt())
-	fmt.Println(lang.RxFromRune(0x11066).ToInt())
-	fmt.Println(lang.RxFromRune(0x11067).ToInt())
-	fmt.Println(lang.RxFromRune(0x11068).ToInt())
-	fmt.Println(lang.RxFromRune(0x11069).ToInt())
-	fmt.Println(lang.RxFromRune(0x1106A).ToInt())
-	fmt.Println(lang.RxFromRune(0x1106B).ToInt())
-	fmt.Println(lang.RxFromRune(0x1106C).ToInt())
-	fmt.Println(lang.RxFromRune(0x1106D).ToInt())
-	fmt.Println(lang.RxFromRune(0x1106E).ToInt())
-	fmt.Println(lang.RxFromRune(0x1106F).ToInt())
-	fmt.Println(lang.RxFromRune(0x110F0).ToInt())
-	fmt.Println(lang.RxFromRune(0x110F1).ToInt())
-	fmt.Println(lang.RxFromRune(0x110F2).ToInt())
-	fmt.Println(lang.RxFromRune(0x110F3).ToInt())
-	fmt.Println(lang.RxFromRune(0x110F4).ToInt())
-	fmt.Println(lang.RxFromRune(0x110F5).ToInt())
-	fmt.Println(lang.RxFromRune(0x110F6).ToInt())
-	fmt.Println(lang.RxFromRune(0x110F7).ToInt())
-	fmt.Println(lang.RxFromRune(0x110F8).ToInt())
-	fmt.Println(lang.RxFromRune(0x110F9).ToInt())
-	fmt.Println(lang.RxFromRune(0x11136).ToInt())
-	fmt.Println(lang.RxFromRune(0x11137).ToInt())
-	fmt.Println(lang.RxFromRune(0x11138).ToInt())
-	fmt.Println(lang.RxFromRune(0x11139).ToInt())
-	fmt.Println(lang.RxFromRune(0x1113A).ToInt())
-	fmt.Println(lang.RxFromRune(0x1113B).ToInt())
-	fmt.Println(lang.RxFromRune(0x1113C).ToInt())
-	fmt.Println(lang.RxFromRune(0x1113D).ToInt())
-	fmt.Println(lang.RxFromRune(0x1113E).ToInt())
-	fmt.Println(lang.RxFromRune(0x1113F).ToInt())
-	fmt.Println(lang.RxFromRune(0x111D0).ToInt())
-	fmt.Println(lang.RxFromRune(0x111D1).ToInt())
-	fmt.Println(lang.RxFromRune(0x111D2).ToInt())
-	fmt.Println(lang.RxFromRune(0x111D3).ToInt())
-	fmt.Println(lang.RxFromRune(0x111D4).ToInt())
-	fmt.Println(lang.RxFromRune(0x111D5).ToInt())
-	fmt.Println(lang.RxFromRune(0x111D6).ToInt())
-	fmt.Println(lang.RxFromRune(0x111D7).ToInt())
-	fmt.Println(lang.RxFromRune(0x111D8).ToInt())
-	fmt.Println(lang.RxFromRune(0x111D9).ToInt())
-	fmt.Println(lang.RxFromRune(0x112F0).ToInt())
-	fmt.Println(lang.RxFromRune(0x112F1).ToInt())
-	fmt.Println(lang.RxFromRune(0x112F2).ToInt())
-	fmt.Println(lang.RxFromRune(0x112F3).ToInt())
-	fmt.Println(lang.RxFromRune(0x112F4).ToInt())
-	fmt.Println(lang.RxFromRune(0x112F5).ToInt())
-	fmt.Println(lang.RxFromRune(0x112F6).ToInt())
-	fmt.Println(lang.RxFromRune(0x112F7).ToInt())
-	fmt.Println(lang.RxFromRune(0x112F8).ToInt())
-	fmt.Println(lang.RxFromRune(0x112F9).ToInt())
-	fmt.Println(lang.RxFromRune(0x11450).ToInt())
-	fmt.Println(lang.RxFromRune(0x11451).ToInt())
-	fmt.Println(lang.RxFromRune(0x11452).ToInt())
-	fmt.Println(lang.RxFromRune(0x11453).ToInt())
-	fmt.Println(lang.RxFromRune(0x11454).ToInt())
-	fmt.Println(lang.RxFromRune(0x11455).ToInt())
-	fmt.Println(lang.RxFromRune(0x11456).ToInt())
-	fmt.Println(lang.RxFromRune(0x11457).ToInt())
-	fmt.Println(lang.RxFromRune(0x11458).ToInt())
-	fmt.Println(lang.RxFromRune(0x11459).ToInt())
-	fmt.Println(lang.RxFromRune(0x114D0).ToInt())
-	fmt.Println(lang.RxFromRune(0x114D1).ToInt())
-	fmt.Println(lang.RxFromRune(0x114D2).ToInt())
-	fmt.Println(lang.RxFromRune(0x114D3).ToInt())
-	fmt.Println(lang.RxFromRune(0x114D4).ToInt())
-	fmt.Println(lang.RxFromRune(0x114D5).ToInt())
-	fmt.Println(lang.RxFromRune(0x114D6).ToInt())
-	fmt.Println(lang.RxFromRune(0x114D7).ToInt())
-	fmt.Println(lang.RxFromRune(0x114D8).ToInt())
-	fmt.Println(lang.RxFromRune(0x114D9).ToInt())
-	fmt.Println(lang.RxFromRune(0x11650).ToInt())
-	fmt.Println(lang.RxFromRune(0x11651).ToInt())
-	fmt.Println(lang.RxFromRune(0x11652).ToInt())
-	fmt.Println(lang.RxFromRune(0x11653).ToInt())
-	fmt.Println(lang.RxFromRune(0x11654).ToInt())
-	fmt.Println(lang.RxFromRune(0x11655).ToInt())
-	fmt.Println(lang.RxFromRune(0x11656).ToInt())
-	fmt.Println(lang.RxFromRune(0x11657).ToInt())
-	fmt.Println(lang.RxFromRune(0x11658).ToInt())
-	fmt.Println(lang.RxFromRune(0x11659).ToInt())
-	fmt.Println(lang.RxFromRune(0x116C0).ToInt())
-	fmt.Println(lang.RxFromRune(0x116C1).ToInt())
-	fmt.Println(lang.RxFromRune(0x116C2).ToInt())
-	fmt.Println(lang.RxFromRune(0x116C3).ToInt())
-	fmt.Println(lang.RxFromRune(0x116C4).ToInt())
-	fmt.Println(lang.RxFromRune(0x116C5).ToInt())
-	fmt.Println(lang.RxFromRune(0x116C6).ToInt())
-	fmt.Println(lang.RxFromRune(0x116C7).ToInt())
-	fmt.Println(lang.RxFromRune(0x116C8).ToInt())
-	fmt.Println(lang.RxFromRune(0x116C9).ToInt())
-	fmt.Println(lang.RxFromRune(0x11730).ToInt())
-	fmt.Println(lang.RxFromRune(0x11731).ToInt())
-	fmt.Println(lang.RxFromRune(0x11732).ToInt())
-	fmt.Println(lang.RxFromRune(0x11733).ToInt())
-	fmt.Println(lang.RxFromRune(0x11734).ToInt())
-	fmt.Println(lang.RxFromRune(0x11735).ToInt())
-	fmt.Println(lang.RxFromRune(0x11736).ToInt())
-	fmt.Println(lang.RxFromRune(0x11737).ToInt())
-	fmt.Println(lang.RxFromRune(0x11738).ToInt())
-	fmt.Println(lang.RxFromRune(0x11739).ToInt())
-	fmt.Println(lang.RxFromRune(0x118E0).ToInt())
-	fmt.Println(lang.RxFromRune(0x118E1).ToInt())
-	fmt.Println(lang.RxFromRune(0x118E2).ToInt())
-	fmt.Println(lang.RxFromRune(0x118E3).ToInt())
-	fmt.Println(lang.RxFromRune(0x118E4).ToInt())
-	fmt.Println(lang.RxFromRune(0x118E5).ToInt())
-	fmt.Println(lang.RxFromRune(0x118E6).ToInt())
-	fmt.Println(lang.RxFromRune(0x118E7).ToInt())
-	fmt.Println(lang.RxFromRune(0x118E8).ToInt())
-	fmt.Println(lang.RxFromRune(0x118E9).ToInt())
-	fmt.Println(lang.RxFromRune(0x11C50).ToInt())
-	fmt.Println(lang.RxFromRune(0x11C51).ToInt())
-	fmt.Println(lang.RxFromRune(0x11C52).ToInt())
-	fmt.Println(lang.RxFromRune(0x11C53).ToInt())
-	fmt.Println(lang.RxFromRune(0x11C54).ToInt())
-	fmt.Println(lang.RxFromRune(0x11C55).ToInt())
-	fmt.Println(lang.RxFromRune(0x11C56).ToInt())
-	fmt.Println(lang.RxFromRune(0x11C57).ToInt())
-	fmt.Println(lang.RxFromRune(0x11C58).ToInt())
-	fmt.Println(lang.RxFromRune(0x11C59).ToInt())
-	fmt.Println(lang.RxFromRune(0x11D50).ToInt())
-	fmt.Println(lang.RxFromRune(0x11D51).ToInt())
-	fmt.Println(lang.RxFromRune(0x11D52).ToInt())
-	fmt.Println(lang.RxFromRune(0x11D53).ToInt())
-	fmt.Println(lang.RxFromRune(0x11D54).ToInt())
-	fmt.Println(lang.RxFromRune(0x11D55).ToInt())
-	fmt.Println(lang.RxFromRune(0x11D56).ToInt())
-	fmt.Println(lang.RxFromRune(0x11D57).ToInt())
-	fmt.Println(lang.RxFromRune(0x11D58).ToInt())
-	fmt.Println(lang.RxFromRune(0x11D59).ToInt())
-	//~ fmt.Println(lang.RxFromRune(0x11DA0).ToInt())
-	//~ fmt.Println(lang.RxFromRune(0x11DA1).ToInt())
-	//~ fmt.Println(lang.RxFromRune(0x11DA2).ToInt())
-	//~ fmt.Println(lang.RxFromRune(0x11DA3).ToInt())
-	//~ fmt.Println(lang.RxFromRune(0x11DA4).ToInt())
-	//~ fmt.Println(lang.RxFromRune(0x11DA5).ToInt())
-	//~ fmt.Println(lang.RxFromRune(0x11DA6).ToInt())
-	//~ fmt.Println(lang.RxFromRune(0x11DA7).ToInt())
-	//~ fmt.Println(lang.RxFromRune(0x11DA8).ToInt())
-	//~ fmt.Println(lang.RxFromRune(0x11DA9).ToInt())
-	fmt.Println(lang.RxFromRune(0x16A60).ToInt())
-	fmt.Println(lang.RxFromRune(0x16A61).ToInt())
-	fmt.Println(lang.RxFromRune(0x16A62).ToInt())
-	fmt.Println(lang.RxFromRune(0x16A63).ToInt())
-	fmt.Println(lang.RxFromRune(0x16A64).ToInt())
-	fmt.Println(lang.RxFromRune(0x16A65).ToInt())
-	fmt.Println(lang.RxFromRune(0x16A66).ToInt())
-	fmt.Println(lang.RxFromRune(0x16A67).ToInt())
-	fmt.Println(lang.RxFromRune(0x16A68).ToInt())
-	fmt.Println(lang.RxFromRune(0x16A69).ToInt())
-	fmt.Println(lang.RxFromRune(0x16B50).ToInt())
-	fmt.Println(lang.RxFromRune(0x16B51).ToInt())
-	fmt.Println(lang.RxFromRune(0x16B52).ToInt())
-	fmt.Println(lang.RxFromRune(0x16B53).ToInt())
-	fmt.Println(lang.RxFromRune(0x16B54).ToInt())
-	fmt.Println(lang.RxFromRune(0x16B55).ToInt())
-	fmt.Println(lang.RxFromRune(0x16B56).ToInt())
-	fmt.Println(lang.RxFromRune(0x16B57).ToInt())
-	fmt.Println(lang.RxFromRune(0x16B58).ToInt())
-	fmt.Println(lang.RxFromRune(0x16B59).ToInt())
-	fmt.Println(lang.RxFromRune(0x1D7CE).ToInt())
-	fmt.Println(lang.RxFromRune(0x1D7CF).ToInt())
-	fmt.Println(lang.RxFromRune(0x1D7D0).ToInt())
-	fmt.Println(lang.RxFromRune(0x1D7D1).ToInt())
-	fmt.Println(lang.RxFromRune(0x1D7D2).ToInt())
-	fmt.Println(lang.RxFromRune(0x1D7D3).ToInt())
-	fmt.Println(lang.RxFromRune(0x1D7D4).ToInt())
-	fmt.Println(lang.RxFromRune(0x1D7D5).ToInt())
-	fmt.Println(lang.RxFromRune(0x1D7D6).ToInt())
-	fmt.Println(lang.RxFromRune(0x1D7D7).ToInt())
-	fmt.Println(lang.RxFromRune(0x1D7D8).ToInt())
-	fmt.Println(lang.RxFromRune(0x1D7D9).ToInt())
-	fmt.Println(lang.RxFromRune(0x1D7DA).ToInt())
-	fmt.Println(lang.RxFromRune(0x1D7DB).ToInt())
-	fmt.Println(lang.RxFromRune(0x1D7DC).ToInt())
-	fmt.Println(lang.RxFromRune(0x1D7DD).ToInt())
-	fmt.Println(lang.RxFromRune(0x1D7DE).ToInt())
-	fmt.Println(lang.RxFromRune(0x1D7DF).ToInt())
-	fmt.Println(lang.RxFromRune(0x1D7E0).ToInt())
-	fmt.Println(lang.RxFromRune(0x1D7E1).ToInt())
-	fmt.Println(lang.RxFromRune(0x1D7E2).ToInt())
-	fmt.Println(lang.RxFromRune(0x1D7E3).ToInt())
-	fmt.Println(lang.RxFromRune(0x1D7E4).ToInt())
-	fmt.Println(lang.RxFromRune(0x1D7E5).ToInt())
-	fmt.Println(lang.RxFromRune(0x1D7E6).ToInt())
-	fmt.Println(lang.RxFromRune(0x1D7E7).ToInt())
-	fmt.Println(lang.RxFromRune(0x1D7E8).ToInt())
-	fmt.Println(lang.RxFromRune(0x1D7E9).ToInt())
-	fmt.Println(lang.RxFromRune(0x1D7EA).ToInt())
-	fmt.Println(lang.RxFromRune(0x1D7EB).ToInt())
-	fmt.Println(lang.RxFromRune(0x1D7EC).ToInt())
-	fmt.Println(lang.RxFromRune(0x1D7ED).ToInt())
-	fmt.Println(lang.RxFromRune(0x1D7EE).ToInt())
-	fmt.Println(lang.RxFromRune(0x1D7EF).ToInt())
-	fmt.Println(lang.RxFromRune(0x1D7F0).ToInt())
-	fmt.Println(lang.RxFromRune(0x1D7F1).ToInt())
-	fmt.Println(lang.RxFromRune(0x1D7F2).ToInt())
-	fmt.Println(lang.RxFromRune(0x1D7F3).ToInt())
-	fmt.Println(lang.RxFromRune(0x1D7F4).ToInt())
-	fmt.Println(lang.RxFromRune(0x1D7F5).ToInt())
-	fmt.Println(lang.RxFromRune(0x1D7F6).ToInt())
-	fmt.Println(lang.RxFromRune(0x1D7F7).ToInt())
-	fmt.Println(lang.RxFromRune(0x1D7F8).ToInt())
-	fmt.Println(lang.RxFromRune(0x1D7F9).ToInt())
-	fmt.Println(lang.RxFromRune(0x1D7FA).ToInt())
-	fmt.Println(lang.RxFromRune(0x1D7FB).ToInt())
-	fmt.Println(lang.RxFromRune(0x1D7FC).ToInt())
-	fmt.Println(lang.RxFromRune(0x1D7FD).ToInt())
-	fmt.Println(lang.RxFromRune(0x1D7FE).ToInt())
-	fmt.Println(lang.RxFromRune(0x1D7FF).ToInt())
-	//~ fmt.Println(lang.RxFromRune(0x1E140).ToInt())
-	//~ fmt.Println(lang.RxFromRune(0x1E141).ToInt())
-	//~ fmt.Println(lang.RxFromRune(0x1E142).ToInt())
-	//~ fmt.Println(lang.RxFromRune(0x1E143).ToInt())
-	//~ fmt.Println(lang.RxFromRune(0x1E144).ToInt())
-	//~ fmt.Println(lang.RxFromRune(0x1E145).ToInt())
-	//~ fmt.Println(lang.RxFromRune(0x1E146).ToInt())
-	//~ fmt.Println(lang.RxFromRune(0x1E147).ToInt())
-	//~ fmt.Println(lang.RxFromRune(0x1E148).ToInt())
-	//~ fmt.Println(lang.RxFromRune(0x1E149).ToInt())
-	//~ fmt.Println(lang.RxFromRune(0x1E2F0).ToInt())
-	//~ fmt.Println(lang.RxFromRune(0x1E2F1).ToInt())
-	//~ fmt.Println(lang.RxFromRune(0x1E2F2).ToInt())
-	//~ fmt.Println(lang.RxFromRune(0x1E2F3).ToInt())
-	//~ fmt.Println(lang.RxFromRune(0x1E2F4).ToInt())
-	//~ fmt.Println(lang.RxFromRune(0x1E2F5).ToInt())
-	//~ fmt.Println(lang.RxFromRune(0x1E2F6).ToInt())
-	//~ fmt.Println(lang.RxFromRune(0x1E2F7).ToInt())
-	//~ fmt.Println(lang.RxFromRune(0x1E2F8).ToInt())
-	//~ fmt.Println(lang.RxFromRune(0x1E2F9).ToInt())
-	fmt.Println(lang.RxFromRune(0x1E950).ToInt())
-	fmt.Println(lang.RxFromRune(0x1E951).ToInt())
-	fmt.Println(lang.RxFromRune(0x1E952).ToInt())
-	fmt.Println(lang.RxFromRune(0x1E953).ToInt())
-	fmt.Println(lang.RxFromRune(0x1E954).ToInt())
-	fmt.Println(lang.RxFromRune(0x1E955).ToInt())
-	fmt.Println(lang.RxFromRune(0x1E956).ToInt())
-	fmt.Println(lang.RxFromRune(0x1E957).ToInt())
-	fmt.Println(lang.RxFromRune(0x1E958).ToInt())
-	fmt.Println(lang.RxFromRune(0x1E959).ToInt())
-	//look, err := lang.RxFromInt(0x1E959).X2b()
-	//lang.SayRexx(look)
-
 	//lang.RxFromInt(19).OpEqS(nil, lang.RxFromInt(18))
 
 	//~ d2b, err = lang.RxFromString("259.9").D2b(eight)
@@ -3668,8 +3058,545 @@ func main() {
 	//~ d2b, err = lang.RxFromString("561").D2b(one)
 	//~ d2x, err = lang.RxFromString("261").D2x(one)
 
+	new_set.SetDigits(zero)
+	new_set.SetDigits(lower_a)
+	new_set.SetDigits(lang.RxFromBool(true))
+	new_set.SetForm(lang.RxFromBool(true))
+	new_set.SetForm(lang.RxFromString("engineering"))
+	new_set.SetForm(lang.RxFromString("scientific"))
+	lang.RxUtil()
+
+	x = lang.RxFromString("7.62939453629394536293945362939453E+28")
+
+	// lang.SayString("chars")
+	// fmt.Println(fmt.Sprintf("%v", reflect.ValueOf(x).Elem().Field(0)))
+	// lang.SayString("ind")
+	// fmt.Println(fmt.Sprintf("%v", reflect.ValueOf(x).Elem().Field(1)))
+	// lang.SayString("form")
+	// fmt.Println(fmt.Sprintf("%v", reflect.ValueOf(x).Elem().Field(2)))
+	// lang.SayString("mant")
+	// fmt.Println(fmt.Sprintf("%v", reflect.ValueOf(x).Elem().Field(3)))
+	// lang.SayString("exp")
+	// fmt.Println(fmt.Sprintf("%v", reflect.ValueOf(x).Elem().Field(4)))
+	// lang.SayString("dig")
+	// fmt.Println(fmt.Sprintf("%v", reflect.ValueOf(x).Elem().Field(5)))
+	// lang.SayString("coll")
+	// fmt.Println(fmt.Sprintf("%v", reflect.ValueOf(x).Elem().Field(6)))
+
+	lang.D2x(x, -0)
+	lang.D2x(z, -100)
+	lang.Float64Pow(10.753567, 0)
+	lang.Float64Pow(10.753567, -1)
+	lang.Trunc(x, 0)
+	lang.Trunc(lower_a, 5)
+
+	lang.RxWords()
+
+	lang.Abbrev([]rune{1}, []rune{1, 2}, 0)
+
+	lang.Centre([]rune{1}, 1, 'c')
+
+	lang.DelWord([]rune{1}, 0, 0)
+
+	lang.Verify([]rune{1}, []rune{1}, 'N', 1)
+
+	lang.Verifym([]rune{1}, []rune{1}, 2)
+
+	lang.Verifym([]rune{1}, []rune{}, 1)
+
+	lang.Verifym([]rune{1}, []rune{1}, 1)
+
+	lang.Word([]rune{1}, 1)
+
+	lang.WordLength([]rune{1}, 1)
+
+	lang.WordPos([]rune{32}, []rune{1}, 1)
+
+	lang.WordPos([]rune{65, 32, 32, 66, 32}, []rune{}, -3)
+
+	opadd, err = lang.RxFromString("0.4444444444").OpAdd(nil, lang.RxFromString("0.5555555550"))
+	//lang.SayRexx(opadd)
+
+	// bigcopy, err := one.Copies(lang.RxFromInt(66846720))
+	// if bigcopy == nil {
+	// 	lang.SayString("BOMB")
+	// }
+	//bigcopy.Right(one, zero)
+
+	//lang.PrintMemUsage()
+	//runtime.GC()
+
+	//one.Copies(lang.RxFromInt(99999999))
+	// 72000001
+	//999999999
+	//lang.PrintMemUsage()
+
+	lang.Format(lang.RxFromString(".2111"), 0, 2, 9, 9, 'S')
+
+	//lang.Float32Pow(10.753567, 0)
+	//lang.Float32Pow(10.753567, -1)
+
+	//~ 208
+	//fmt.Println(lang.Format(lang.RxFromString(".1"), lang.MinExp-1, lang.MinExp-1, lang.MinExp-1, -1, 'E'))
+
+	//lang.Format(lang.RxFromString("-0"), -10, lang.MinExp-1, 19, -10, 'E')
+	//-999999999
+	// 100000000
+
+	//-999999999
+
+	//lang.RxFromFloat64(-99.999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999E-300).OpPow(nil, x)
+
+	// INDEX OUT OF RANGE
+	//fmt.Println(lang.Space([]rune{64, 32, 32, 54}, -10000, 32))
+	// lang.Space([]rune{32, 65}, 1, 32)
+
+	// BULK TEST START
+
+	unigroup := [370]rune{
+		'\u0030', '\u0031', '\u0032', '\u0033', '\u0034', '\u0035', '\u0036', '\u0037', '\u0038', '\u0039',
+		'\u0660', '\u0661', '\u0662', '\u0663', '\u0664', '\u0665', '\u0666', '\u0667', '\u0668', '\u0669',
+		'\u06F0', '\u06F1', '\u06F2', '\u06F3', '\u06F4', '\u06F5', '\u06F6', '\u06F7', '\u06F8', '\u06F9',
+		'\u07C0', '\u07C1', '\u07C2', '\u07C3', '\u07C4', '\u07C5', '\u07C6', '\u07C7', '\u07C8', '\u07C9',
+		'\u0966', '\u0967', '\u0968', '\u0969', '\u096A', '\u096B', '\u096C', '\u096D', '\u096E', '\u096F',
+		'\u09E6', '\u09E7', '\u09E8', '\u09E9', '\u09EA', '\u09EB', '\u09EC', '\u09ED', '\u09EE', '\u09EF',
+		'\u0A66', '\u0A67', '\u0A68', '\u0A69', '\u0A6A', '\u0A6B', '\u0A6C', '\u0A6D', '\u0A6E', '\u0A6F',
+		'\u0AE6', '\u0AE7', '\u0AE8', '\u0AE9', '\u0AEA', '\u0AEB', '\u0AEC', '\u0AED', '\u0AEE', '\u0AEF',
+		'\u0B66', '\u0B67', '\u0B68', '\u0B69', '\u0B6A', '\u0B6B', '\u0B6C', '\u0B6D', '\u0B6E', '\u0B6F',
+		'\u0BE6', '\u0BE7', '\u0BE8', '\u0BE9', '\u0BEA', '\u0BEB', '\u0BEC', '\u0BED', '\u0BEE', '\u0BEF',
+		'\u0C66', '\u0C67', '\u0C68', '\u0C69', '\u0C6A', '\u0C6B', '\u0C6C', '\u0C6D', '\u0C6E', '\u0C6F',
+		'\u0CE6', '\u0CE7', '\u0CE8', '\u0CE9', '\u0CEA', '\u0CEB', '\u0CEC', '\u0CED', '\u0CEE', '\u0CEF',
+		'\u0D66', '\u0D67', '\u0D68', '\u0D69', '\u0D6A', '\u0D6B', '\u0D6C', '\u0D6D', '\u0D6E', '\u0D6F',
+		'\u0DE6', '\u0DE7', '\u0DE8', '\u0DE9', '\u0DEA', '\u0DEB', '\u0DEC', '\u0DED', '\u0DEE', '\u0DEF',
+		'\u0E50', '\u0E51', '\u0E52', '\u0E53', '\u0E54', '\u0E55', '\u0E56', '\u0E57', '\u0E58', '\u0E59',
+		'\u0ED0', '\u0ED1', '\u0ED2', '\u0ED3', '\u0ED4', '\u0ED5', '\u0ED6', '\u0ED7', '\u0ED8', '\u0ED9',
+		'\u0F20', '\u0F21', '\u0F22', '\u0F23', '\u0F24', '\u0F25', '\u0F26', '\u0F27', '\u0F28', '\u0F29',
+		'\u1040', '\u1041', '\u1042', '\u1043', '\u1044', '\u1045', '\u1046', '\u1047', '\u1048', '\u1049',
+		'\u1090', '\u1091', '\u1092', '\u1093', '\u1094', '\u1095', '\u1096', '\u1097', '\u1098', '\u1099',
+		'\u17E0', '\u17E1', '\u17E2', '\u17E3', '\u17E4', '\u17E5', '\u17E6', '\u17E7', '\u17E8', '\u17E9',
+		'\u1810', '\u1811', '\u1812', '\u1813', '\u1814', '\u1815', '\u1816', '\u1817', '\u1818', '\u1819',
+		'\u1946', '\u1947', '\u1948', '\u1949', '\u194A', '\u194B', '\u194C', '\u194D', '\u194E', '\u194F',
+		'\u19D0', '\u19D1', '\u19D2', '\u19D3', '\u19D4', '\u19D5', '\u19D6', '\u19D7', '\u19D8', '\u19D9',
+		'\u1A80', '\u1A81', '\u1A82', '\u1A83', '\u1A84', '\u1A85', '\u1A86', '\u1A87', '\u1A88', '\u1A89',
+		'\u1A90', '\u1A91', '\u1A92', '\u1A93', '\u1A94', '\u1A95', '\u1A96', '\u1A97', '\u1A98', '\u1A99',
+		'\u1B50', '\u1B51', '\u1B52', '\u1B53', '\u1B54', '\u1B55', '\u1B56', '\u1B57', '\u1B58', '\u1B59',
+		'\u1BB0', '\u1BB1', '\u1BB2', '\u1BB3', '\u1BB4', '\u1BB5', '\u1BB6', '\u1BB7', '\u1BB8', '\u1BB9',
+		'\u1C40', '\u1C41', '\u1C42', '\u1C43', '\u1C44', '\u1C45', '\u1C46', '\u1C47', '\u1C48', '\u1C49',
+		'\u1C50', '\u1C51', '\u1C52', '\u1C53', '\u1C54', '\u1C55', '\u1C56', '\u1C57', '\u1C58', '\u1C59',
+		'\uA620', '\uA621', '\uA622', '\uA623', '\uA624', '\uA625', '\uA626', '\uA627', '\uA628', '\uA629',
+		'\uA8D0', '\uA8D1', '\uA8D2', '\uA8D3', '\uA8D4', '\uA8D5', '\uA8D6', '\uA8D7', '\uA8D8', '\uA8D9',
+		'\uA900', '\uA901', '\uA902', '\uA903', '\uA904', '\uA905', '\uA906', '\uA907', '\uA908', '\uA909',
+		'\uA9D0', '\uA9D1', '\uA9D2', '\uA9D3', '\uA9D4', '\uA9D5', '\uA9D6', '\uA9D7', '\uA9D8', '\uA9D9',
+		'\uA9F0', '\uA9F1', '\uA9F2', '\uA9F3', '\uA9F4', '\uA9F5', '\uA9F6', '\uA9F7', '\uA9F8', '\uA9F9',
+		'\uAA50', '\uAA51', '\uAA52', '\uAA53', '\uAA54', '\uAA55', '\uAA56', '\uAA57', '\uAA58', '\uAA59',
+		'\uABF0', '\uABF1', '\uABF2', '\uABF3', '\uABF4', '\uABF5', '\uABF6', '\uABF7', '\uABF8', '\uABF9',
+		'\uFF10', '\uFF11', '\uFF12', '\uFF13', '\uFF14', '\uFF15', '\uFF16', '\uFF17', '\uFF18', '\uFF19',
+	}
+
+	hexgroup := [260]rune{
+		0x104A0, 0x104A1, 0x104A2, 0x104A3, 0x104A4, 0x104A5, 0x104A6, 0x104A7, 0x104A8, 0x104A9,
+		0x10D30, 0x10D31, 0x10D32, 0x10D33, 0x10D34, 0x10D35, 0x10D36, 0x10D37, 0x10D38, 0x10D39,
+		0x11066, 0x11067, 0x11068, 0x11069, 0x1106A, 0x1106B, 0x1106C, 0x1106D, 0x1106E, 0x1106F,
+		0x110F0, 0x110F1, 0x110F2, 0x110F3, 0x110F4, 0x110F5, 0x110F6, 0x110F7, 0x110F8, 0x110F9,
+		0x11136, 0x11137, 0x11138, 0x11139, 0x1113A, 0x1113B, 0x1113C, 0x1113D, 0x1113E, 0x1113F,
+		0x111D0, 0x111D1, 0x111D2, 0x111D3, 0x111D4, 0x111D5, 0x111D6, 0x111D7, 0x111D8, 0x111D9,
+		0x112F0, 0x112F1, 0x112F2, 0x112F3, 0x112F4, 0x112F5, 0x112F6, 0x112F7, 0x112F8, 0x112F9,
+		0x11450, 0x11451, 0x11452, 0x11453, 0x11454, 0x11455, 0x11456, 0x11457, 0x11458, 0x11459,
+		0x114D0, 0x114D1, 0x114D2, 0x114D3, 0x114D4, 0x114D5, 0x114D6, 0x114D7, 0x114D8, 0x114D9,
+		0x11650, 0x11651, 0x11652, 0x11653, 0x11654, 0x11655, 0x11656, 0x11657, 0x11658, 0x11659,
+		0x116C0, 0x116C1, 0x116C2, 0x116C3, 0x116C4, 0x116C5, 0x116C6, 0x116C7, 0x116C8, 0x116C9,
+		0x11730, 0x11731, 0x11732, 0x11733, 0x11734, 0x11735, 0x11736, 0x11737, 0x11738, 0x11739,
+		0x118E0, 0x118E1, 0x118E2, 0x118E3, 0x118E4, 0x118E5, 0x118E6, 0x118E7, 0x118E8, 0x118E9,
+		0x11C50, 0x11C51, 0x11C52, 0x11C53, 0x11C54, 0x11C55, 0x11C56, 0x11C57, 0x11C58, 0x11C59,
+		0x11D50, 0x11D51, 0x11D52, 0x11D53, 0x11D54, 0x11D55, 0x11D56, 0x11D57, 0x11D58, 0x11D59,
+		0x11DA0, 0x11DA1, 0x11DA2, 0x11DA3, 0x11DA4, 0x11DA5, 0x11DA6, 0x11DA7, 0x11DA8, 0x11DA9,
+		0x16A60, 0x16A61, 0x16A62, 0x16A63, 0x16A64, 0x16A65, 0x16A66, 0x16A67, 0x16A68, 0x16A69,
+		0x16B50, 0x16B51, 0x16B52, 0x16B53, 0x16B54, 0x16B55, 0x16B56, 0x16B57, 0x16B58, 0x16B59,
+		0x1D7CE, 0x1D7CF, 0x1D7D0, 0x1D7D1, 0x1D7D2, 0x1D7D3, 0x1D7D4, 0x1D7D5, 0x1D7D6, 0x1D7D7,
+		0x1D7D8, 0x1D7D9, 0x1D7DA, 0x1D7DB, 0x1D7DC, 0x1D7DD, 0x1D7DE, 0x1D7DF, 0x1D7E0, 0x1D7E1,
+		0x1D7E2, 0x1D7E3, 0x1D7E4, 0x1D7E5, 0x1D7E6, 0x1D7E7, 0x1D7E8, 0x1D7E9, 0x1D7EA, 0x1D7EB,
+		0x1D7EC, 0x1D7ED, 0x1D7EE, 0x1D7EF, 0x1D7F0, 0x1D7F1, 0x1D7F2, 0x1D7F3, 0x1D7F4, 0x1D7F5,
+		0x1D7F6, 0x1D7F7, 0x1D7F8, 0x1D7F9, 0x1D7FA, 0x1D7FB, 0x1D7FC, 0x1D7FD, 0x1D7FE, 0x1D7FF,
+		// next two rows : go1.13.1 openbsd[6.6]/amd64 unicode.IsDigit not working for me
+		//0x1E140, 0x1E141, 0x1E142, 0x1E143, 0x1E144, 0x1E145, 0x1E146, 0x1E147, 0x1E148, 0x1E149,
+		//0x1E2F0, 0x1E2F1, 0x1E2F2, 0x1E2F3, 0x1E2F4, 0x1E2F5, 0x1E2F6, 0x1E2F7, 0x1E2F8, 0x1E2F9,
+		0x1E950, 0x1E951, 0x1E952, 0x1E953, 0x1E954, 0x1E955, 0x1E956, 0x1E957, 0x1E958, 0x1E959,
+	}
+
+	count := 0
+	for row := 1; row <= 37; row++ {
+		for col := 0; col <= 9; col++ {
+			number, err := lang.RxFromRune(unigroup[count]).ToInt()
+			if err != nil {
+				fmt.Printf("err: row %d col %d\n", row, col)
+			} else {
+				if number != col {
+					fmt.Printf("number: %d row %d col %d\n", number, row, col)
+				}
+			}
+			count++
+		}
+	}
+
+	count = 0
+	for row := 1; row <= 24; row++ {
+		for col := 0; col <= 9; col++ {
+			number, err := lang.RxFromRune(hexgroup[count]).ToInt()
+			if err != nil {
+				fmt.Printf("err: row %d col %d\n", row, col)
+			} else {
+				if number != col {
+					fmt.Printf("number: %d row %d col %d\n", number, row, col)
+				}
+			}
+			count++
+		}
+	}
+
+	//~ 1878
+	lang.RxIO()
+
+	// line := lang.Ask()
+	// lang.SayRexx(line)
+
+	// kb := lang.AskOne()
+	// lang.SayRexx(kb)
+
+	//~ 1883 1884
+	lang.SayString("a")
+
+	//~ 1885
+	lang.SayRexx(lower_a)
+
+	//~ 1886
+	lang.SayRune('a')
+
+	//~ 1887
+	lang.SayInt64(0)
+
+	//~ 1888
+	lang.SayFloat32(0.0)
+
+	//~ 1889
+	lang.SayFloat64(0.0)
+
+	//~ 1890
+	lang.SayBool(true)
+
+	//~ 1892
+	lang.Say(nil)
+
+	//~ 1894
+	lang.Say(make([]rune, 0))
+
+	//~ 1895
+	vas := make([]rune, 1)
+	vas[0] = '\000'
+	lang.Say(vas)
+
+	opminus, err = lower_a.OpMinus(rexx_set)
+	if err != nil {
+		lang.SayString("BUG1132A")
+	}
+
+	//~ 1163
+	//fmt.Println(lang.RxFromString("1.797693134862315708145274237317043567981e+309").ToFloat64())
+	//fmt.Println(lang.RxFromString("-1.797693134862315708145274237317043567981e+309").ToFloat64())
+	lang.RxFromString("1.797693134862315708145274237317043567981e+309").ToFloat64()
+	lang.RxFromString("-1.797693134862315708145274237317043567981e+309").ToFloat64()
+
+	//~ 1167
+	lang.Format(lang.RxFromString("-0"), -10, 50, 19, -10, 'E')
+
 	//~ 1211 1659
 	opmult, err = lang.RxFromString("50.000000").OpPow(rexx_set, lang.RxFromString("17.000"))
+
+	//~ 1236 MEMORY drop MAX MINS
+	//b2d, err = lang.RxFromString("123").B2d(lang.RxFromInt(lang.MaxExp))
+
+	//~ 1628
+	rexsult, err := lang.RxFromString("10.23456785").OpSub(lang.RxSetWithDigit(9), lang.RxFromString("10.23456789"))
+	if (err == nil) && !(rexsult.ToString() == "0") {
+		lang.SayString("subx121")
+	}
+
+	//~ 1642
+	lang.RxFromString("9E+999999999").OpMult(lang.RxSetWithDigit(9), lang.RxFromString("+1.23456789012345E-0"))
+
+	//~ 1652
+	lang.RxFromString("100").OpPow(lang.RxSetWithDigit(16), lang.RxFromString("1E+9"))
+
+	//~ 1679
+	opdiv, err = lang.RxFromInt8(int8(-128)).OpDiv(nil, lang.RxFromString("-34359738368"))
+
+	//~ 1712 1802 1803
+	lang.RxFromString("-0.9E-999999999").OpDiv(nil, z)
+
+	//~ 1727
+	value_a.OpAdd(lang.RxSetWithDigitandForm(0, int8(0)), one_point_zero)
+
+	//~ 1737
+	opcc = emptyrex.OpCc(rexx_set, emptyrex)
+	// FIXME ADD IF TEST
+
+	//~ 1804 1805
+	big_set := lang.RxSet()
+	big_set.SetForm(lang.RxFromString("engineering"))
+	lang.RxFromString("-0.9E-999999999").OpDiv(big_set, z)
+
+	//~ 1951
+	new_set.SetDigits(lang.RxFromString("1.7976931348623157e-308"))
+
+	//~ 1983
+	lang.D2x(z, 1)
+
+	//~ 2007
+	x2c, err = lang.RxFromString("FFFFFFFFFFFFFFFFFFFFFFFF").X2c()
+
+	//~ 2014
+	lang.X2d(x, 1111111110)
+
+	//~ 2032 2035
+	lang.Float32Pow(-1.12345, lang.MaxArg)
+
+	//~ 2036
+	lang.Float32Pow(1.797693134862315708145274237317043567981e+308, 9)
+
+	//~ 2054
+	lang.Trunc(lang.RxFromString(".3E+25"), 10)
+
+	//~ 2064
+	//fmt.Println(lang.Format(lower_a, 1, 1, 1, 1, 'S'))
+	lang.Format(lower_a, 1, 1, 1, 1, 'S')
+
+	//~ 2080
+	//fmt.Println(lang.Format(one_point_zero, 0, 0, 0, 0, 'E'))
+	lang.Format(one_point_zero, 0, 0, 0, 0, 'E')
+
+	//~ 2084 MEMORY drop MAX MINS
+	//format, err = lang.RxFromString(".022E-999").Format(five, lang.RxFromInt(lang.MaxExp-1000), five, five, lang.RxFromRune('P'))
+
+	//~ 2087 2088
+	//fmt.Println(lang.Format(lang.RxFromString(".1"), 0, 0, lang.MinExp+1, 0, 'E'))
+	lang.Format(lang.RxFromString(".1"), 0, 0, lang.MinExp+1, 0, 'E')
+
+	//~ 2090 2103
+	//fmt.Println(lang.Format(x, 10, 1, -100, 100, 'S'))
+	lang.Format(x, 10, 1, -100, 100, 'S')
+
+	//~ 2102
+	//fmt.Println(lang.Format(zero, 1, -1, 1, 1, 'c'))
+	lang.Format(zero, 1, -1, 1, 1, 'c')
+
+	//~ 2104
+	//fmt.Println(lang.Format(zero, 0, 1, 1, 1, 'b'))
+	lang.Format(zero, 0, 1, 1, 1, 'b')
+
+	//~ 2105
+	format, err = lang.RxFromString("2.73").Format(lang.RxFromInt(lang.MaxExp), five, nil, nil, nil)
+
+	//~ 2108
+	//fmt.Println(lang.Format(lang.RxFromString(".1"), 0, 0, lang.MaxExp+1, 0, 'E'))
+	lang.Format(lang.RxFromString(".1"), 0, 0, lang.MaxExp+1, 0, 'E')
+
+	//~ 2203
+	lang.Space([]rune{32, 65}, 1, 0)
+
+	//~ 2208
+	lang.SubWord([]rune{65}, 1, 0)
+
+	//~ 2247
+	lang.WordPos([]rune{65, 32, 32, 66, 32}, []rune{65, 32, 32, 66, 32}, 1)
+
+	//~ 2248
+	lang.WordPos([]rune{32, 27, 32, 27, 32, 27}, []rune{32, 27}, 1)
+
+	//~ 2249
+	lang.WordPos([]rune{32, 27, 32, 27, 32, 27}, []rune{32, 27, 32}, 1)
+
+	//~ 2251
+	lang.WordPos([]rune{65, 32, 32, 66, 32}, []rune{65, 32, 32, 66, 32}, 2)
+
+	//~ 1898
+	lang.RxParse()
+
+	obj := lang.RxFromString("jan,feb,mar,apr,may,jun")
+
+	var list = []rune{2, 1, 44, 10, 1, 0, 2, 1, 44, 10, 1, 1, 2, 1, 44, 10, 1, 2, 2, 1, 44, 10, 1, 3, 1, 10, 1, 4, 0}
+
+	vars := make([]*lang.Rexx, 5)
+
+	//var a, b, c, d, e *lang.Rexx
+
+	//var newline = lang.RxFromRune('\n')
+
+	lang.Parse(obj, list, vars)
+
+	//a = vars[0]
+	//b = vars[1]
+	//c = vars[2]
+	//d = vars[3]
+	//e = vars[4]
+
+	//lang.SayRexx(a.OpCc(nil, newline).OpCc(nil, b).OpCc(nil, newline).OpCc(nil, c).OpCc(nil, newline).OpCc(nil, d).OpCc(nil, newline).OpCc(nil, e))
+
+	//lang.SayRexx(a.OpCc(nil, newline))
+
+	//~ 1908
+	vars = make([]*lang.Rexx, 5)
+	vars[1] = x
+	vars[3] = z
+	lang.Parse(lang.ToRxFromString("Flying pigs have wings"), []rune{7, 1, 10, 1, 0, 9, 3, 10, 1, 2, 1, 10, 1, 4, 0}, vars)
+
+	//~ 1909
+	vars = make([]*lang.Rexx, 5)
+	vars[1] = lang.RxFromInt(lang.MinCol - 1)
+	vars[3] = lang.RxFromInt(lang.MaxCol + 1)
+	lang.Parse(lang.ToRxFromString("Flying pigs have wings"), []rune{7, 1, 10, 1, 0, 9, 3, 10, 1, 2, 1, 10, 1, 4, 0}, vars)
+	//lang.SayRexx(vars[0])
+	//lang.SayRexx(vars[1])
+	//lang.SayRexx(vars[2])
+	//lang.SayRexx(vars[3])
+	//lang.SayRexx(vars[4])
+
+	//~ 1910 1911
+	vars = make([]*lang.Rexx, 5)
+	vars[1] = five
+	vars[3] = five
+	lang.Parse(lang.ToRxFromString("Flying pigs have wings"), []rune{7, 1, 10, 1, 0, 8, 3, 10, 1, 2, 1, 10, 1, 4, 0}, vars)
+	//lang.SayRexx(vars[0])
+	//lang.SayRexx(vars[1])
+	//lang.SayRexx(vars[2])
+	//lang.SayRexx(vars[3])
+	//lang.SayRexx(vars[4])
+
+	//~ 1912 1914 1915
+	vars = make([]*lang.Rexx, 5)
+	vars[1] = five
+	vars[3] = five
+	lang.Parse(lang.ToRxFromString("Flying pigs have wings"), []rune{7, 1, 10, 1, 0, 9, 3, 10, 1, 2, 1, 10, 1, 4, 0}, vars)
+	//lang.SayRexx(vars[0])
+	//lang.SayRexx(vars[1])
+	//lang.SayRexx(vars[2])
+	//lang.SayRexx(vars[3])
+	//lang.SayRexx(vars[4])
+
+	//~ 1931
+	vars = make([]*lang.Rexx, 7)
+	vars[1] = five
+	vars[3] = five
+	lang.Parse(lang.ToRxFromString(""), []rune{7, 1, 10, 1, 0, 7, 3, 10, 1, 2, 5, 1, 2, 10, 1, 4, 1, 10, 2, 5, 6, 0}, vars)
+	//lang.SayRexx(vars[0])
+	//lang.SayRexx(vars[1])
+	//lang.SayRexx(vars[2])
+	//lang.SayRexx(vars[3])
+	//lang.SayRexx(vars[4])
+	//lang.SayRexx(vars[5])
+	//lang.SayRexx(vars[6])
+
+	//~ 1934 1937
+	vars = make([]*lang.Rexx, 5)
+	lang.Parse(lang.ToRxFromString("This a remark field (up to 39 chars)   44 55 //66    77"), []rune{2, 2, 47, 47, 10, 3, 0, 1, 2, 1, 10, 3, 3, 4, 2, 0}, vars)
+	//lang.SayRexx(vars[0])
+	//lang.SayRexx(vars[1])
+	//lang.SayRexx(vars[2])
+	//lang.SayRexx(vars[3])
+	//lang.SayRexx(vars[4])
+
+	vars = make([]*lang.Rexx, 3)
+	lang.Parse(lang.ToRxFromString("This is a sentence."), []rune{1, 10, 3, 0, 1, 2, 0}, vars)
+	//lang.SayRexx(vars[0])
+	//lang.SayRexx(vars[1])
+	//lang.SayRexx(vars[2])
+
+	vars = make([]*lang.Rexx, 2)
+	lang.Parse(lang.ToRxFromString("To be, or not to be?"), []rune{2, 1, 44, 10, 1, 0, 1, 10, 1, 1, 0}, vars)
+	//lang.SayRexx(vars[0])
+	//lang.SayRexx(vars[1])
+
+	vars = make([]*lang.Rexx, 4)
+	lang.Parse(lang.ToRxFromString("To be, or not to be?"), []rune{2, 1, 44, 10, 1, 0, 1, 10, 3, 1, 2, 3, 0}, vars)
+	//lang.SayRexx(vars[0])
+	//lang.SayRexx(vars[1])
+	//lang.SayRexx(vars[2])
+	//lang.SayRexx(vars[3])
+
+	// vars = make([]*lang.Rexx, 4)
+	// vars[1] = lang.RxFromRune(',')
+	// lang.Parse(lang.ToRxFromString("To be, or not to be?"), []rune{6, 1, 10, 1, 0, 1, 10, 3, 2, 3, 4, 0}, vars)
+	//lang.SayRexx(vars[0])
+	//lang.SayRexx(vars[1])
+	//lang.SayRexx(vars[2])
+	//lang.SayRexx(vars[3])
+
+	vars = make([]*lang.Rexx, 2)
+	lang.Parse(lang.ToRxFromString("Flying pigs have wings"), []rune{3, 1, 5, 10, 1, 0, 1, 10, 1, 1, 0}, vars)
+	//lang.SayRexx(vars[0])
+	//lang.SayRexx(vars[1])
+
+	vars = make([]*lang.Rexx, 3)
+	lang.Parse(lang.ToRxFromString("Flying pigs have wings"), []rune{3, 1, 5, 10, 1, 0, 3, 1, 10, 10, 1, 1, 1, 10, 1, 2, 0}, vars)
+	//lang.SayRexx(vars[0])
+	//lang.SayRexx(vars[1])
+	//lang.SayRexx(vars[2])
+
+	vars = make([]*lang.Rexx, 3)
+	lang.Parse(lang.ToRxFromString("Flying pigs have wings"), []rune{3, 1, 5, 10, 1, 0, 4, 1, 5, 10, 1, 1, 1, 10, 1, 2, 0}, vars)
+	//lang.SayRexx(vars[0])
+	//lang.SayRexx(vars[1])
+	//lang.SayRexx(vars[2])
+
+	vars = make([]*lang.Rexx, 3)
+	lang.Parse(lang.ToRxFromString("123456789"), []rune{3, 1, 3, 4, 1, 3, 10, 1, 0, 3, 1, 3, 10, 1, 1, 1, 10, 1, 2, 0}, vars)
+	//lang.SayRexx(vars[0])
+	//lang.SayRexx(vars[1])
+	//lang.SayRexx(vars[2])
+
+	vars = make([]*lang.Rexx, 0)
+	lang.Parse(lang.ToRxFromString("1234 56789"), []rune{5, 0, 4, 0, 0}, vars)
+	//lang.SayRexx(vars[0])
+
+	vars = make([]*lang.Rexx, 4)
+	lang.Parse(lang.ToRxFromString("L/look for/1 10"), []rune{3, 1, 2, 10, 1, 0, 4, 1, 1, 10, 1, 1, 6, 1, 10, 1, 2, 1, 10, 1, 3, 0}, vars)
+	//lang.SayRexx(vars[0])
+	//lang.SayRexx(vars[1])
+	//lang.SayRexx(vars[2])
+	//lang.SayRexx(vars[3])
+
+	vars = make([]*lang.Rexx, 4)
+	lang.Parse(lang.ToRxFromString(""), []rune{3, 1, 2, 10, 1, 0, 4, 1, 1, 10, 1, 1, 6, 1, 10, 1, 2, 1, 10, 1, 3, 0}, vars)
+	//lang.SayRexx(vars[0])
+	//lang.SayRexx(vars[1])
+	//lang.SayRexx(vars[2])
+	//lang.SayRexx(vars[3])
+
+	vars = make([]*lang.Rexx, 4)
+	lang.Parse(lang.ToRxFromString("MINUS"), []rune{3, 1, 2, 10, 1, 0, 5, 1, 10, 10, 1, 1, 6, 1, 10, 1, 2, 1, 10, 1, 3, 0}, vars)
+	//lang.SayRexx(vars[0])
+	//lang.SayRexx(vars[1])
+	//lang.SayRexx(vars[2])
+	//lang.SayRexx(vars[3])
+
+	vars = make([]*lang.Rexx, 4)
+	lang.Parse(lang.RxFromInt(0), []rune{3, 0, 0}, vars)
+	//lang.SayRexx(vars[0])
+	//lang.SayRexx(vars[1])
+	//lang.SayRexx(vars[2])
+	//lang.SayRexx(vars[3])
+
+	//lang.RxFromRune('\u06EF')
+	// bb, err := lang.X2b(lang.RxFromString("1775"))
+	// if err != nil {
+	// 	lang.SayString("XXXX")
+	// }
+	// fmt.Println(string(bb))
+	//lang.RxFromRune('\u06F1')
+	//"9223372036854775807"
+	// LB, err := lang.RxFromString("9223372036854775807").D2b(lang.RxFromString("63"))
+	// lang.SayRexx(LB)
+	//18,446,744,073,709,551,615
+	// LB, err = lang.RxFromString("18446744073709551615").D2b(lang.RxFromString("64"))
+	// lang.SayRexx(LB)
 
 	return
 }
