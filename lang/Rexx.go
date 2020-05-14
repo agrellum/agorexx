@@ -19,18 +19,18 @@ const ispos int8 = 1
 const iszero int8 = 0
 const isneg int8 = -1
 const NotaNum int8 = -2
-const MinExp int = -999999999
-const MaxExp int = 999999999
-const MinArg int = -999999999
-const MaxArg int = 999999999
+const MinExp int32 = -999999999
+const MaxExp int32 = 999999999
+const MinArg int32 = -999999999
+const MaxArg int32 = 999999999
 
 type Rexx struct {
 	chars []rune
 	ind   int8
 	form  int8
 	mant  []rune
-	exp   int
-	dig   int
+	exp   int32
+	dig   int32
 	coll  map[*Rexx]*RexxNode
 	mux   sync.Mutex
 }
@@ -48,6 +48,7 @@ func RxFromRune(inchar rune) (rcvr *Rexx) {
 	rcvr.form = r.form
 	return
 }
+
 func RxFromRunes(in []rune) (rcvr *Rexx) {
 	rcvr = &Rexx{}
 	_new := make([]rune, len(in))
@@ -61,14 +62,17 @@ func RxFromRunes(in []rune) (rcvr *Rexx) {
 	rcvr.form = r.form
 	return
 }
+
 func RxFromString(str string) (rcvr *Rexx) {
 	rcvr = Rx([]rune(str), true)
 	return
 }
+
 func RxFromStrings(strings []string) (rcvr *Rexx) {
 	rcvr = Rx(sa2ca(strings), true)
 	return
 }
+
 func RxFromClone(in *Rexx) (rcvr *Rexx) {
 	rcvr = &Rexx{}
 	rcvr.chars = in.chars
@@ -80,6 +84,7 @@ func RxFromClone(in *Rexx) (rcvr *Rexx) {
 	rcvr.coll = nil
 	return
 }
+
 func RxFromBool(flag bool) (rcvr *Rexx) {
 	rcvr = &Rexx{}
 	rcvr.exp = 0
@@ -96,15 +101,18 @@ func RxFromBool(flag bool) (rcvr *Rexx) {
 	rcvr.chars = rcvr.mant
 	return
 }
+
 func RxFromInt8(num int8) (rcvr *Rexx) {
-	rcvr = RxFromInt(int(num))
+	rcvr = RxFromInt32(int32(num))
 	return
 }
+
 func RxFromInt16(num int16) (rcvr *Rexx) {
-	rcvr = RxFromInt(int(num))
+	rcvr = RxFromInt32(int32(num))
 	return
 }
-func RxFromInt(num int) (rcvr *Rexx) {
+
+func RxFromInt32(num int32) (rcvr *Rexx) {
 	rcvr = &Rexx{}
 	rcvr.exp = 0
 	rcvr.form = DefaultForm
@@ -112,7 +120,7 @@ func RxFromInt(num int) (rcvr *Rexx) {
 		if num >= -9 {
 			rcvr.mant = make([]rune, 1)
 			if num > 0 {
-				rcvr.mant[0] = rune(int('0') + num)
+				rcvr.mant[0] = rune(int32('0') + num)
 				rcvr.chars = rcvr.mant
 				rcvr.ind = ispos
 			} else if num == 0 {
@@ -122,7 +130,7 @@ func RxFromInt(num int) (rcvr *Rexx) {
 			} else {
 				rcvr.chars = make([]rune, 2)
 				rcvr.chars[0] = '-'
-				rcvr.chars[1] = rune(int('0') - num)
+				rcvr.chars[1] = rune(int32('0') - num)
 				rcvr.mant[0] = rcvr.chars[1]
 				rcvr.ind = isneg
 			}
@@ -138,38 +146,39 @@ func RxFromInt(num int) (rcvr *Rexx) {
 	rcvr.ind = isneg
 	rcvr.chars = nil
 	rcvr.dig = 10
-	//FIXME −9223372036854775808L
-	//FIXME -2147483648L
-	if num == int(-2147483648) && strconv.IntSize == 64 {
+	//FIXME -2147483648L  && strconv.IntSize == 64
+	if num == int32(-2147483648) {
 		rcvr.mant = []rune("2147483648")
 		return
 	}
-	num = int(-num)
+	num = int32(-num)
 	rcvr.mant = []rune(strconv.FormatInt(int64(num), 10))
 	return
 }
+
 func RxFromInt64(num int64) (rcvr *Rexx) {
 	rcvr = Rx([]rune(strconv.FormatInt(num, 10)), true)
 	return
 }
+
 func RxFromFloat32(num float32) (rcvr *Rexx) {
-	//value, _ := ToRxFromFloat64(float64(num), 7)
-	value, _ := ToRxFromFloat64(float64(num), 40)
+	value, _ := ToRxFromFloat64(float64(num), 7)
 	rcvr = RxFromClone(value)
 	return
 }
+
 func RxFromFloat64(num float64) (rcvr *Rexx) {
-	//value, _ := ToRxFromFloat64(num, 16)
-	value, _ := ToRxFromFloat64(num, 40)
+	value, _ := ToRxFromFloat64(num, 16)
 	rcvr = RxFromClone(value)
 	return
 }
+
 func Rx(s []rune, trynum bool) (rcvr *Rexx) {
 	rcvr = &Rexx{}
-	dvalue := 0
+	var dvalue int32 = 0
 	eneg := false
-	j := 0
-	c := 0
+	var j int32 = 0
+	var c int32 = 0
 	rcvr.chars = s
 	rcvr.ind = NotaNum
 	if len(s) == 0 {
@@ -186,7 +195,7 @@ func Rx(s []rune, trynum bool) (rcvr *Rexx) {
 	if !trynum {
 		return
 	}
-	leng := len(s)
+	leng := int32(len(s))
 	i := leng - 1
 	for ; i >= 0; i-- {
 		if s[i] != ' ' {
@@ -197,8 +206,8 @@ func Rx(s []rune, trynum bool) (rcvr *Rexx) {
 			return
 		}
 	}
-	insign := 0
-	start := -1
+	var insign int32 = 0
+	var start int32 = -1
 	_1 := leng - 1
 	i = 0
 	for ; i <= _1; i++ {
@@ -225,9 +234,9 @@ func Rx(s []rune, trynum bool) (rcvr *Rexx) {
 		return
 	}
 	exotic := false
-	d := 0
-	e := -1
-	last := -1
+	var d int32 = 0
+	var e int32 = -1
+	var last int32 = -1
 	_2 := leng - 1
 	i = start
 	for ; i <= _2; i++ {
@@ -287,12 +296,12 @@ func Rx(s []rune, trynum bool) (rcvr *Rexx) {
 					return
 				}
 			} else {
-				dvalue = int(s[j]) - int('0')
+				dvalue = int32(s[j]) - int32('0')
 			}
 			rcvr.exp = rcvr.exp*10 + dvalue
 		}
 		if eneg {
-			rcvr.exp = int(-rcvr.exp)
+			rcvr.exp = int32(-rcvr.exp)
 		}
 		break
 	}
@@ -330,7 +339,7 @@ func Rx(s []rune, trynum bool) (rcvr *Rexx) {
 				if s[start+i] == '.' {
 					j = 1
 				}
-				c = int(s[start+i+j])
+				c = int32(s[start+i+j])
 				if c <= '9' {
 					rcvr.mant[i] = rune(c)
 				} else {
@@ -338,10 +347,10 @@ func Rx(s []rune, trynum bool) (rcvr *Rexx) {
 					if dvalue < 0 {
 						return
 					}
-					rcvr.mant[i] = rune(dvalue + int('0'))
+					rcvr.mant[i] = rune(dvalue + int32('0'))
 				}
 			}
-		} else if d == len(rcvr.chars) {
+		} else if d == int32(len(rcvr.chars)) {
 			rcvr.mant = rcvr.chars
 		} else {
 			rcvr.mant = make([]rune, d)
@@ -369,25 +378,27 @@ func Rx(s []rune, trynum bool) (rcvr *Rexx) {
 	}
 	return
 }
+
 func RxFromEmpty() (rcvr *Rexx) {
 	rcvr = &Rexx{}
 	return
 }
-func (rcvr *Rexx) intlength() int {
+
+func (rcvr *Rexx) intlength() int32 {
 	if rcvr.chars == nil {
 		rcvr.chars = rcvr.layout()
 	}
-	return len(rcvr.chars)
+	return int32(len(rcvr.chars))
 }
-func (rcvr *Rexx) intwords() int {
+
+func (rcvr *Rexx) intwords() int32 {
 	if rcvr.chars == nil {
 		rcvr.chars = rcvr.layout()
 	}
 	return Words(rcvr.chars)
 }
 
-//NULL
-func (rcvr *Rexx) ToString() string { //FIXME string
+func (rcvr *Rexx) ToString() string {
 	if rcvr.chars == nil {
 		rcvr.chars = rcvr.layout()
 	}
@@ -395,7 +406,6 @@ func (rcvr *Rexx) ToString() string { //FIXME string
 	return value
 }
 
-//NULL
 func (rcvr *Rexx) ToRunes() []rune {
 	if rcvr.chars == nil {
 		rcvr.chars = rcvr.layout()
@@ -404,6 +414,7 @@ func (rcvr *Rexx) ToRunes() []rune {
 	copy(res, rcvr.chars)
 	return res
 }
+
 func (rcvr *Rexx) ToRune() (rune, error) {
 	if rcvr.chars == nil {
 		rcvr.chars = rcvr.layout()
@@ -413,7 +424,8 @@ func (rcvr *Rexx) ToRune() (rune, error) {
 	}
 	return rcvr.chars[0], nil
 }
-func (rcvr *Rexx) HashCode() int {
+
+func (rcvr *Rexx) HashCode() int32 {
 	over := 0
 	if rcvr.chars == nil {
 		rcvr.chars = rcvr.layout()
@@ -429,17 +441,19 @@ func (rcvr *Rexx) HashCode() int {
 	for ; i <= _7; i++ {
 		hash = hash*7 + int(rcvr.chars[i])*2 + int(rcvr.chars[len(rcvr.chars)-i-1])
 	}
-	return hash
+	return int32(hash)
 }
-func (rcvr *Rexx) CharAt(index int) (rune, error) {
+
+func (rcvr *Rexx) CharAt(index int32) (rune, error) {
 	if rcvr.chars == nil {
 		rcvr.chars = rcvr.layout()
 	}
-	if (index > len(rcvr.chars)-1) || (index < 0) {
+	if (index > int32(len(rcvr.chars))-1) || (index < 0) {
 		return 0, RxException(1, "index out of range")
 	}
 	return rcvr.chars[index], nil
 }
+
 func ToRuneFromString(s string) (rune, error) {
 	tmp := []rune(s)
 	if len(tmp) != 1 {
@@ -447,19 +461,20 @@ func ToRuneFromString(s string) (rune, error) {
 	}
 	return tmp[0], nil
 }
+
 func ToRuneFromRunes(s []rune) (rune, error) {
 	if len(s) != 1 {
 		return 0, RxException(7, string(s))
 	}
 	return s[0], nil
 }
+
 func ToRunesFromRune(c rune) []rune {
 	ca := make([]rune, 1)
 	ca[0] = c
 	return ca
 }
 
-// NULL
 func ToRunesFromRexx(r *Rexx) []rune {
 	if r == nil {
 		return nil
@@ -471,6 +486,7 @@ func ToRunesFromRexx(r *Rexx) []rune {
 	copy(res, r.chars)
 	return res
 }
+
 func ToRxFromRunes(ca []rune) *Rexx {
 	if ca == nil {
 		return nil
@@ -480,14 +496,10 @@ func ToRxFromRunes(ca []rune) *Rexx {
 	return Rx(_new, true)
 }
 
-//NULL
 func ToRxFromString(s string) *Rexx {
-	// 	return nil
-	// }
 	return Rx([]rune(s), true)
 }
 
-//NULL
 func ToString(r *Rexx) string {
 	if r == nil {
 		return "" //golang does not allow nil strings FIXME?
@@ -498,12 +510,14 @@ func ToString(r *Rexx) string {
 	value := string(r.chars)
 	return value
 }
-func (rcvr *Rexx) Significance() int {
+
+func (rcvr *Rexx) Significance() int32 {
 	if rcvr.ind == NotaNum {
 		return 0
 	}
-	return len(rcvr.mant)
+	return int32(len(rcvr.mant))
 }
+
 func (rcvr *Rexx) ToBool() (bool, error) {
 	if rcvr.ind == iszero {
 		return false, nil
@@ -517,8 +531,9 @@ func (rcvr *Rexx) ToBool() (bool, error) {
 	}
 	return false, RxException(8, "Boolean must be 0 or 1.  Found: "+rcvr.ToString())
 }
+
 func (rcvr *Rexx) ToInt8() (int8, error) {
-	num, err := rcvr.ToInt()
+	num, err := rcvr.ToInt32()
 	if err != nil {
 		return 0, err
 	}
@@ -527,8 +542,9 @@ func (rcvr *Rexx) ToInt8() (int8, error) {
 	}
 	return int8(num), nil
 }
+
 func (rcvr *Rexx) ToInt16() (int16, error) {
-	num, err := rcvr.ToInt()
+	num, err := rcvr.ToInt32()
 	if err != nil {
 		return 0, err
 	}
@@ -537,24 +553,25 @@ func (rcvr *Rexx) ToInt16() (int16, error) {
 	}
 	return int16(num), nil
 }
-func (rcvr *Rexx) ToInt() (int, error) {
-	cstart := 0
-	useexp := 0
+
+func (rcvr *Rexx) ToInt32() (int32, error) {
+	var cstart int32 = 0
+	var useexp int32 = 0
 	if rcvr.ind == NotaNum {
 		return 0, RxException(9, string(rcvr.chars))
 	}
-	if (rcvr.ind == iszero) && (rcvr.mant != nil) { //FIXME
+	if rcvr.ind == iszero {
 		return 0, nil
 	}
-	lodigit := len(rcvr.mant) - 1
-	if (rcvr.exp < 0) || (rcvr.mant == nil) { //FIXME
+	lodigit := int32(len(rcvr.mant) - 1)
+	if rcvr.exp < 0 {
 		lodigit = lodigit + rcvr.exp
 		if lodigit < 0 {
 			cstart = 0
 		} else {
 			cstart = lodigit + 1
 		}
-		_8 := len(rcvr.mant) - 1
+		_8 := int32(len(rcvr.mant) - 1)
 		j := cstart
 		for ; j <= _8; j++ {
 			if rcvr.mant[j] != '0' {
@@ -566,23 +583,23 @@ func (rcvr *Rexx) ToInt() (int, error) {
 		}
 		useexp = 0
 	} else {
-		if rcvr.exp+len(rcvr.mant) > 10 {
+		if rcvr.exp+int32(len(rcvr.mant)) > 10 {
 			return 0, RxException(9, "Conversion overflow")
 		}
 		useexp = rcvr.exp
 	}
-	result := 0
+	var result int32 = 0
 	lastresult := result
 	_9 := lodigit + useexp
-	i := 0
+	var i int32 = 0
 	for ; i <= _9; i++ {
 		result = result * 10
 		if i <= lodigit {
-			result = result + (int(rcvr.mant[i]) - int('0'))
+			result = result + (int32(rcvr.mant[i]) - int32('0'))
 		}
 		if result < lastresult {
 			if rcvr.ind == isneg {
-				if result == math.MinInt32 { //FIXME 32/64 math.MinInt32
+				if result == math.MinInt32 {
 					if i == lodigit+useexp {
 						return result, nil
 					}
@@ -595,26 +612,27 @@ func (rcvr *Rexx) ToInt() (int, error) {
 	if rcvr.ind > 0 {
 		return result, nil
 	}
-	return int(-result), nil
+	return int32(-result), nil
 }
+
 func (rcvr *Rexx) ToInt64() (int64, error) {
-	cstart := 0
-	useexp := 0
+	var cstart int32 = 0
+	var useexp int32 = 0
 	if rcvr.ind == NotaNum {
 		return 0, RxException(9, string(rcvr.chars))
 	}
-	if (rcvr.ind == 0) && (rcvr.mant != nil) { //FIXME
+	if rcvr.ind == 0 {
 		return 0, nil
 	}
-	lodigit := len(rcvr.mant) - 1
-	if (rcvr.exp < 0) || (rcvr.mant == nil) { //FIXME
+	lodigit := int32(len(rcvr.mant)) - 1
+	if rcvr.exp < 0 {
 		lodigit = lodigit + rcvr.exp
 		if lodigit < 0 {
 			cstart = 0
 		} else {
 			cstart = lodigit + 1
 		}
-		_10 := len(rcvr.mant) - 1
+		_10 := int32(len(rcvr.mant)) - 1
 		j := cstart
 		for ; j <= _10; j++ {
 			if rcvr.mant[j] != '0' {
@@ -626,24 +644,23 @@ func (rcvr *Rexx) ToInt64() (int64, error) {
 		}
 		useexp = 0
 	} else {
-		if rcvr.exp+len(rcvr.mant) >= 20 {
+		if rcvr.exp+int32(len(rcvr.mant)) >= 20 {
 			return 0, RxException(9, "Conversion overflow")
 		}
 		useexp = rcvr.exp
 	}
-	result := int(0) //FIXME int8(int32(int64(0)))
+	result := int64(0)
 	lastresult := result
 	_11 := lodigit + useexp
-	i := 0
+	var i int32 = 0
 	for ; i <= _11; i++ {
 		result = result * 10
 		if i <= lodigit {
-			result = result + (int(rcvr.mant[i]) - int('0'))
+			result = result + (int64(rcvr.mant[i]) - int64('0'))
 		}
 		if result < lastresult {
 			if rcvr.ind < 0 {
-				//if result == math.MinInt32 { //FIXME 386
-				if result == math.MinInt64 { //FIXME
+				if result == math.MinInt64 {
 					if i == lodigit+useexp {
 						return int64(result), nil
 					}
@@ -658,6 +675,7 @@ func (rcvr *Rexx) ToInt64() (int64, error) {
 	}
 	return int64(-result), nil
 }
+
 func (rcvr *Rexx) ToFloat32() (float32, error) {
 	var dub float64
 	dub, err := rcvr.ToFloat64()
@@ -669,6 +687,7 @@ func (rcvr *Rexx) ToFloat32() (float32, error) {
 	}
 	return float32(dub), nil
 }
+
 func (rcvr *Rexx) ToFloat64() (float64, error) {
 	if rcvr.ind == NotaNum {
 		return 0, RxException(9, string(rcvr.chars))
@@ -686,14 +705,16 @@ func (rcvr *Rexx) ToFloat64() (float64, error) {
 	}
 	return dub, nil
 }
+
 func (rcvr *Rexx) layoutnum() []rune {
 	return rcvr.layout()
 }
+
 func (rcvr *Rexx) layout() []rune {
 	var s rune
 	var sb strings.Builder
-	euse := 0
-	sig := 0
+	var euse int32 = 0
+	var sig int32 = 0
 	if rcvr.ind == NotaNum {
 		SayString(fmt.Sprintf("%v%v", "Internal error: Rexx missing number ", string(rcvr.chars)))
 	}
@@ -701,13 +722,13 @@ func (rcvr *Rexx) layout() []rune {
 		SayString(fmt.Sprintf("%v%v", "Internal error: Rexx: bad dig ", rcvr.dig))
 		rcvr.dig = DefaultDigits
 	}
-	mag := rcvr.exp + len(rcvr.mant)
+	mag := rcvr.exp + int32(len(rcvr.mant))
 	if (mag > rcvr.dig) || (mag < -5) {
 		if rcvr.form != PLAIN {
 			if rcvr.ind == isneg {
 				sb.WriteRune('-')
 			}
-			euse = rcvr.exp + len(rcvr.mant) - 1
+			euse = rcvr.exp + int32(len(rcvr.mant)) - 1
 			if rcvr.form == DefaultForm {
 				sb.WriteRune(rcvr.mant[0])
 				if len(rcvr.mant) > 1 {
@@ -724,20 +745,21 @@ func (rcvr *Rexx) layout() []rune {
 					}
 					euse = euse - sig
 					sig++
-					if sig >= len(rcvr.mant) {
+					if sig >= int32(len(rcvr.mant)) {
 						for i := 0; i < len(rcvr.mant); i++ {
 							sb.WriteRune(rcvr.mant[i])
 						}
-						_12 := sig - len(rcvr.mant)
+						_12 := sig - int32(len(rcvr.mant))
 						for ; _12 > 0; _12-- {
 							sb.WriteRune('0')
 						}
 					} else {
-						for i := 0; i < sig; i++ {
+						var i int32
+						for i = 0; i < sig; i++ {
 							sb.WriteRune(rcvr.mant[i])
 						}
 						sb.WriteRune('.')
-						for i := sig; i < len(rcvr.mant); i++ {
+						for i := sig; i < int32(len(rcvr.mant)); i++ {
 							sb.WriteRune(rcvr.mant[i])
 						}
 					}
@@ -749,13 +771,13 @@ func (rcvr *Rexx) layout() []rune {
 			if euse != 0 {
 				if euse < 0 {
 					s = '-'
-					euse = int(-euse)
+					euse = int32(-euse)
 				} else {
 					s = '+'
 				}
 				sb.WriteRune('E')
 				sb.WriteRune(s)
-				chrs := []rune(strconv.Itoa(euse))
+				chrs := []rune(strconv.Itoa(int(euse)))
 				for i := 0; i < len(chrs); i++ {
 					sb.WriteRune(chrs[i])
 				}
@@ -788,25 +810,27 @@ func (rcvr *Rexx) layout() []rune {
 		}
 		return []rune(sb.String())
 	}
-	if mag > len(rcvr.mant) {
+	if mag > int32(len(rcvr.mant)) {
 		for i := 0; i < len(rcvr.mant); i++ {
 			sb.WriteRune(rcvr.mant[i])
 		}
-		_14 := mag - len(rcvr.mant)
+		_14 := mag - int32(len(rcvr.mant))
 		for ; _14 > 0; _14-- {
 			sb.WriteRune('0')
 		}
 		return []rune(sb.String())
 	}
-	for i := 0; i < mag; i++ {
+	var i int32
+	for i = 0; i < mag; i++ {
 		sb.WriteRune(rcvr.mant[i])
 	}
 	sb.WriteRune('.')
-	for i := mag; i < len(rcvr.mant); i++ {
+	for i = mag; i < int32(len(rcvr.mant)); i++ {
 		sb.WriteRune(rcvr.mant[i])
 	}
 	return []rune(sb.String())
 }
+
 func (rcvr *Rexx) padcheck() (rune, error) {
 	if rcvr.chars == nil {
 		rcvr.chars = rcvr.layout()
@@ -816,8 +840,9 @@ func (rcvr *Rexx) padcheck() (rune, error) {
 	}
 	return rcvr.chars[0], nil
 }
-func (rcvr *Rexx) intcheck(min int, max int) (int, error) {
-	i := 0
+
+func (rcvr *Rexx) intcheck(min int32, max int32) (int32, error) {
+	var i int32 = 0
 	if rcvr.ind == NotaNum {
 		return 0, RxException(9, "Not a number")
 	}
@@ -832,7 +857,7 @@ func (rcvr *Rexx) intcheck(min int, max int) (int, error) {
 			}
 		}
 	}
-	i, err := rcvr.ToInt()
+	i, err := rcvr.ToInt32()
 	if err != nil {
 		return 0, err
 	}
@@ -844,6 +869,7 @@ func (rcvr *Rexx) intcheck(min int, max int) (int, error) {
 	}
 	return i, nil
 }
+
 func (rcvr *Rexx) optioncheck(oklist string) (rune, error) {
 	if rcvr.chars == nil {
 		rcvr.chars = rcvr.layout()
@@ -858,6 +884,7 @@ func (rcvr *Rexx) optioncheck(oklist string) (rune, error) {
 	}
 	return uchar, nil
 }
+
 func (rcvr *Rexx) Abbrev(b *Rexx, leng *Rexx) (*Rexx, error) {
 	n, err := leng.intcheck(0, MaxArg)
 	if err != nil {
@@ -871,13 +898,14 @@ func (rcvr *Rexx) Abbrev(b *Rexx, leng *Rexx) (*Rexx, error) {
 	}
 	return RxFromBool(Abbrev(rcvr.chars, b.chars, n)), nil
 }
+
 func (rcvr *Rexx) Abs() (*Rexx, error) {
 	var set *RexxSet
 	if rcvr.ind == NotaNum {
 		return nil, RxException(9, string(rcvr.chars))
 	}
-	if len(rcvr.mant) > DefaultDigits {
-		set = RxSetWithDigit(len(rcvr.mant))
+	if int32(len(rcvr.mant)) > DefaultDigits {
+		set = RxSetWithDigit(int32(len(rcvr.mant)))
 	} else {
 		set = nil
 	}
@@ -886,10 +914,11 @@ func (rcvr *Rexx) Abs() (*Rexx, error) {
 	}
 	return rcvr.OpMinus(set)
 }
+
 func (rcvr *Rexx) B2d(bil *Rexx) (*Rexx, error) {
 	var firstd string
-	ble := 0
-	bl, err := bil.ToInt()
+	var ble int32 = 0
+	bl, err := bil.ToInt32()
 	if err != nil {
 		return nil, err
 	}
@@ -902,7 +931,7 @@ func (rcvr *Rexx) B2d(bil *Rexx) (*Rexx, error) {
 	if bl > rcvr.intlength() {
 		firstd = "0"
 	} else {
-		rx01, err := rcvr.Right(RxFromInt(bl), ToRxFromRunes([]rune(" ")))
+		rx01, err := rcvr.Right(RxFromInt32(bl), ToRxFromRunes([]rune(" ")))
 		if err != nil {
 			return nil, err
 		}
@@ -913,7 +942,7 @@ func (rcvr *Rexx) B2d(bil *Rexx) (*Rexx, error) {
 		firstd = rx02.ToString()
 	}
 	rx03 := ToRxFromString(firstd)
-	rx04, err := rcvr.Right(RxFromInt(bl), rx03)
+	rx04, err := rcvr.Right(RxFromInt32(bl), rx03)
 	if err != nil {
 		return nil, err
 	}
@@ -922,7 +951,7 @@ func (rcvr *Rexx) B2d(bil *Rexx) (*Rexx, error) {
 	} else {
 		ble = bl
 	}
-	rx05, err := rx04.Right(RxFromInt(ble), rx03)
+	rx05, err := rx04.Right(RxFromInt32(ble), rx03)
 	if err != nil {
 		return nil, err
 	}
@@ -930,12 +959,13 @@ func (rcvr *Rexx) B2d(bil *Rexx) (*Rexx, error) {
 	if err != nil {
 		return nil, err
 	}
-	rx07, err := rx06.X2d(RxFromInt(ble / 4))
+	rx07, err := rx06.X2d(RxFromInt32(ble / 4))
 	if err != nil {
 		return nil, err
 	}
 	return rx07, nil
 }
+
 func (rcvr *Rexx) B2x() (*Rexx, error) {
 	if rcvr.chars == nil {
 		rcvr.chars = rcvr.layout()
@@ -965,6 +995,7 @@ func (rcvr *Rexx) B2x() (*Rexx, error) {
 	}
 	return RxFromRunes(res), nil
 }
+
 func (rcvr *Rexx) Centre(wid *Rexx, pad *Rexx) (*Rexx, error) {
 	width, err := wid.intcheck(0, MaxArg)
 	if err != nil {
@@ -979,6 +1010,7 @@ func (rcvr *Rexx) Centre(wid *Rexx, pad *Rexx) (*Rexx, error) {
 	}
 	return ToRxFromRunes(Centre(rcvr.chars, width, padchar)), nil
 }
+
 func (rcvr *Rexx) Center(wid *Rexx, pad *Rexx) (*Rexx, error) {
 	rx01, err := rcvr.Centre(wid, pad)
 	if err != nil {
@@ -986,6 +1018,7 @@ func (rcvr *Rexx) Center(wid *Rexx, pad *Rexx) (*Rexx, error) {
 	}
 	return rx01, nil
 }
+
 func (rcvr *Rexx) ChangeStr(old *Rexx, _new *Rexx) *Rexx {
 	if rcvr.chars == nil {
 		rcvr.chars = rcvr.layout()
@@ -998,6 +1031,7 @@ func (rcvr *Rexx) ChangeStr(old *Rexx, _new *Rexx) *Rexx {
 	}
 	return ToRxFromRunes(Changestr(old.chars, rcvr.chars, _new.chars))
 }
+
 func (rcvr *Rexx) Compare(target *Rexx, pad *Rexx) (*Rexx, error) {
 	padchar, err := pad.padcheck()
 	if err != nil {
@@ -1009,8 +1043,9 @@ func (rcvr *Rexx) Compare(target *Rexx, pad *Rexx) (*Rexx, error) {
 	if target.chars == nil {
 		target.chars = target.layout()
 	}
-	return RxFromInt(Compare(rcvr.chars, target.chars, padchar)), nil
+	return RxFromInt32(Compare(rcvr.chars, target.chars, padchar)), nil
 }
+
 func (rcvr *Rexx) Copies(n *Rexx) (*Rexx, error) {
 	rep, err := n.intcheck(0, MaxArg)
 	if err != nil {
@@ -1019,16 +1054,17 @@ func (rcvr *Rexx) Copies(n *Rexx) (*Rexx, error) {
 	if rcvr.chars == nil {
 		rcvr.chars = rcvr.layout()
 	}
-	xlen := len(rcvr.chars)
+	xlen := int32(len(rcvr.chars))
 	res := make([]rune, rep*xlen)
-	start := 0
+	var start int32 = 0
 	_15 := rep
 	for ; _15 > 0; _15-- {
-		copy(res[start:], rcvr.chars[:xlen]) //FIXME
+		copy(res[start:], rcvr.chars[:xlen]) //TODO RECHECK SLICE PARAMS
 		start = start + xlen
 	}
 	return Rx(res, true), nil
 }
+
 func (rcvr *Rexx) CountStr(b *Rexx) *Rexx {
 	if rcvr.chars == nil {
 		rcvr.chars = rcvr.layout()
@@ -1036,8 +1072,9 @@ func (rcvr *Rexx) CountStr(b *Rexx) *Rexx {
 	if b.chars == nil {
 		b.chars = b.layout()
 	}
-	return RxFromInt(CountStr(b.chars, rcvr.chars))
+	return RxFromInt32(CountStr(b.chars, rcvr.chars))
 }
+
 func (rcvr *Rexx) C2d() (*Rexx, error) {
 	rcvrchar, err := rcvr.padcheck()
 	if err != nil {
@@ -1045,6 +1082,7 @@ func (rcvr *Rexx) C2d() (*Rexx, error) {
 	}
 	return RxFromInt64(int64(rcvrchar)), nil
 }
+
 func (rcvr *Rexx) C2x() (*Rexx, error) {
 	rcvrchar, err := rcvr.padcheck()
 	if err != nil {
@@ -1079,11 +1117,12 @@ func (rcvr *Rexx) C2x() (*Rexx, error) {
 		}
 		return rx03, nil
 	}
-	res[0] = Hexes[enc%16] //FIXME
+	res[0] = Hexes[enc%16]
 	return RxFromRunes(res), nil
 }
+
 func (rcvr *Rexx) DataType(opt *Rexx) (*Rexx, error) {
-	ok := 0
+	var ok int32 = 0
 	var set *RexxSet
 	ochar, err := opt.optioncheck("ABDLMNSUWX")
 	if err != nil {
@@ -1094,7 +1133,7 @@ func (rcvr *Rexx) DataType(opt *Rexx) (*Rexx, error) {
 			ok = 0
 		} else if ochar == 'A' {
 			rx01 := ToRxFromString(Lowers + Uppers + Digits09)
-			rx02, err := rcvr.Verify(rx01, ToRxFromRunes([]rune("N")), RxFromInt(1))
+			rx02, err := rcvr.Verify(rx01, ToRxFromRunes([]rune("N")), RxFromInt32(1))
 			if err != nil {
 				return nil, err
 			}
@@ -1105,7 +1144,7 @@ func (rcvr *Rexx) DataType(opt *Rexx) (*Rexx, error) {
 			}
 		} else if ochar == 'B' {
 			rx01 := ToRxFromString("01")
-			rx02, err := rcvr.Verify(rx01, ToRxFromRunes([]rune("N")), RxFromInt(1))
+			rx02, err := rcvr.Verify(rx01, ToRxFromRunes([]rune("N")), RxFromInt32(1))
 			if err != nil {
 				return nil, err
 			}
@@ -1116,7 +1155,7 @@ func (rcvr *Rexx) DataType(opt *Rexx) (*Rexx, error) {
 			}
 		} else if ochar == 'D' {
 			rx01 := ToRxFromString(Digits09)
-			rx02, err := rcvr.Verify(rx01, ToRxFromRunes([]rune("N")), RxFromInt(1))
+			rx02, err := rcvr.Verify(rx01, ToRxFromRunes([]rune("N")), RxFromInt32(1))
 			if err != nil {
 				return nil, err
 			}
@@ -1127,7 +1166,7 @@ func (rcvr *Rexx) DataType(opt *Rexx) (*Rexx, error) {
 			}
 		} else if ochar == 'L' {
 			rx01 := ToRxFromString(Lowers)
-			rx02, err := rcvr.Verify(rx01, ToRxFromRunes([]rune("N")), RxFromInt(1))
+			rx02, err := rcvr.Verify(rx01, ToRxFromRunes([]rune("N")), RxFromInt32(1))
 			if err != nil {
 				return nil, err
 			}
@@ -1138,7 +1177,7 @@ func (rcvr *Rexx) DataType(opt *Rexx) (*Rexx, error) {
 			}
 		} else if ochar == 'M' {
 			rx01 := ToRxFromString(Lowers + Uppers)
-			rx02, err := rcvr.Verify(rx01, ToRxFromRunes([]rune("N")), RxFromInt(1))
+			rx02, err := rcvr.Verify(rx01, ToRxFromRunes([]rune("N")), RxFromInt32(1))
 			if err != nil {
 				return nil, err
 			}
@@ -1155,7 +1194,7 @@ func (rcvr *Rexx) DataType(opt *Rexx) (*Rexx, error) {
 			}
 		} else if ochar == 'S' {
 			rx01 := ToRxFromString("_" + Lowers + Uppers + Digits09)
-			rx02, err := rcvr.Verify(rx01, ToRxFromRunes([]rune("N")), RxFromInt(1))
+			rx02, err := rcvr.Verify(rx01, ToRxFromRunes([]rune("N")), RxFromInt32(1))
 			if err != nil {
 				return nil, err
 			}
@@ -1165,7 +1204,7 @@ func (rcvr *Rexx) DataType(opt *Rexx) (*Rexx, error) {
 				return nil, err
 			}
 			rx05 := ToRxFromString(Digits09)
-			rx06, err := rx04.Verify(rx05, ToRxFromRunes([]rune("N")), RxFromInt(1))
+			rx06, err := rx04.Verify(rx05, ToRxFromRunes([]rune("N")), RxFromInt32(1))
 			rx07 := rx06.OpNotEqS(nil, zero)
 			if rx03 && rx07 {
 				ok = 1
@@ -1174,7 +1213,7 @@ func (rcvr *Rexx) DataType(opt *Rexx) (*Rexx, error) {
 			}
 		} else if ochar == 'U' {
 			rx01 := ToRxFromString(Uppers)
-			rx02, err := rcvr.Verify(rx01, ToRxFromRunes([]rune("N")), RxFromInt(1))
+			rx02, err := rcvr.Verify(rx01, ToRxFromRunes([]rune("N")), RxFromInt32(1))
 			if err != nil {
 				return nil, err
 			}
@@ -1187,8 +1226,8 @@ func (rcvr *Rexx) DataType(opt *Rexx) (*Rexx, error) {
 			if rcvr.ind == NotaNum {
 				ok = 0
 			} else {
-				if len(rcvr.mant) > DefaultDigits {
-					set = RxSetWithDigit(len(rcvr.mant))
+				if int32(len(rcvr.mant)) > DefaultDigits {
+					set = RxSetWithDigit(int32(len(rcvr.mant)))
 				} else {
 					set = nil
 				}
@@ -1196,7 +1235,7 @@ func (rcvr *Rexx) DataType(opt *Rexx) (*Rexx, error) {
 				if err != nil {
 					return nil, err
 				}
-				rx02, err := rx01.Pos(RxFromRune('.'), RxFromInt(1))
+				rx02, err := rx01.Pos(RxFromRune('.'), RxFromInt32(1))
 				if err != nil {
 					return nil, err
 				}
@@ -1208,7 +1247,7 @@ func (rcvr *Rexx) DataType(opt *Rexx) (*Rexx, error) {
 			}
 		} else if ochar == 'X' {
 			rx01 := ToRxFromRunes(Hexes)
-			rx02, err := rcvr.Verify(rx01, ToRxFromRunes([]rune("N")), RxFromInt(1))
+			rx02, err := rcvr.Verify(rx01, ToRxFromRunes([]rune("N")), RxFromInt32(1))
 			if err != nil {
 				return nil, err
 			}
@@ -1224,8 +1263,9 @@ func (rcvr *Rexx) DataType(opt *Rexx) (*Rexx, error) {
 			break
 		}
 	}
-	return RxFromInt(ok), nil
+	return RxFromInt32(ok), nil
 }
+
 func (rcvr *Rexx) DelStr(n *Rexx, length *Rexx) (*Rexx, error) {
 	start, err := n.intcheck(1, MaxArg)
 	if err != nil {
@@ -1240,6 +1280,7 @@ func (rcvr *Rexx) DelStr(n *Rexx, length *Rexx) (*Rexx, error) {
 	}
 	return ToRxFromRunes(DelStr(rcvr.chars, start, leng)), nil
 }
+
 func (rcvr *Rexx) DelWord(n *Rexx, length *Rexx) (*Rexx, error) {
 	start, err := n.intcheck(1, MaxArg)
 	if err != nil {
@@ -1254,25 +1295,26 @@ func (rcvr *Rexx) DelWord(n *Rexx, length *Rexx) (*Rexx, error) {
 	}
 	return ToRxFromRunes(DelWord(rcvr.chars, start, leng)), nil
 }
+
 func (rcvr *Rexx) D2b(dil *Rexx) (*Rexx, error) {
-	dl := 0
-	dle := 0
+	var dl int32 = 0
+	var dle int32 = 0
 	if dil.OpEqS(nil, ToRxFromRunes([]rune("0"))) {
 		return ToRxFromRunes([]rune("")), nil
 	}
 	if dil.OpEqS(nil, ToRxFromRunes([]rune("zip"))) {
-		rx01, err := rcvr.D2x(RxFromInt(-1))
+		rx01, err := rcvr.D2x(RxFromInt32(-1))
 		if err != nil {
 			return nil, err
 		}
 		rx02 := rx01.Length()
-		num, err := rx02.ToInt()
+		num, err := rx02.ToInt32()
 		if err != nil {
 			return nil, err
 		}
 		dl = num * 4
 	} else {
-		num, err := dil.ToInt()
+		num, err := dil.ToInt32()
 		if err != nil {
 			return nil, err
 		}
@@ -1283,7 +1325,7 @@ func (rcvr *Rexx) D2b(dil *Rexx) (*Rexx, error) {
 	} else {
 		dle = dl
 	}
-	rx03, err := rcvr.D2x(RxFromInt(dle / 4))
+	rx03, err := rcvr.D2x(RxFromInt32(dle / 4))
 	if err != nil {
 		return nil, err
 	}
@@ -1301,14 +1343,15 @@ func (rcvr *Rexx) D2b(dil *Rexx) (*Rexx, error) {
 		}
 		return rx05, nil
 	}
-	rx06, err := rx04.Right(RxFromInt(dl), ToRxFromRunes([]rune(" ")))
+	rx06, err := rx04.Right(RxFromInt32(dl), ToRxFromRunes([]rune(" ")))
 	if err != nil {
 		return nil, err
 	}
 	return rx06, nil
 }
+
 func (rcvr *Rexx) D2c() (*Rexx, error) {
-	num, err := rcvr.ToInt()
+	num, err := rcvr.ToInt32()
 	if err != nil {
 		return nil, err
 	}
@@ -1317,9 +1360,9 @@ func (rcvr *Rexx) D2c() (*Rexx, error) {
 	}
 	return RxFromRune(rune(num)), nil
 }
+
 func (rcvr *Rexx) D2x(n *Rexx) (*Rexx, error) {
-	//num, err := n.intcheck(0, MaxArg)
-	// FIXME allow -1
+	// allow -1
 	num, err := n.intcheck(-1, MaxArg)
 	if err != nil {
 		return nil, err
@@ -1333,11 +1376,12 @@ func (rcvr *Rexx) D2x(n *Rexx) (*Rexx, error) {
 	}
 	return ToRxFromRunes(value), nil
 }
+
 func (rcvr *Rexx) Format(before *Rexx, after *Rexx, explaces *Rexx, exdigits *Rexx, exform *Rexx) (*Rexx, error) {
-	b := 0
-	a := 0
-	p := 0
-	d := 0
+	var b int32 = 0
+	var a int32 = 0
+	var p int32 = 0
+	var d int32 = 0
 	var f string
 	if rcvr.ind == NotaNum {
 		return nil, RxException(9, string(rcvr.chars))
@@ -1394,6 +1438,7 @@ func (rcvr *Rexx) Format(before *Rexx, after *Rexx, explaces *Rexx, exdigits *Re
 	}
 	return Rx(_02, true), nil
 }
+
 func (rcvr *Rexx) Insert(_new *Rexx, n *Rexx, length *Rexx, pad *Rexx) (*Rexx, error) {
 	num, err := n.intcheck(0, MaxArg)
 	if err != nil {
@@ -1415,8 +1460,9 @@ func (rcvr *Rexx) Insert(_new *Rexx, n *Rexx, length *Rexx, pad *Rexx) (*Rexx, e
 	}
 	return Rx(Insert(rcvr.chars, _new.chars, num, leng, padchar), true), nil
 }
+
 func (rcvr *Rexx) LastPos(needle *Rexx, start *Rexx) (*Rexx, error) {
-	j := 0
+	var j int32 = 0
 	num, err := start.intcheck(1, MaxArg)
 	if err != nil {
 		return nil, err
@@ -1425,15 +1471,15 @@ func (rcvr *Rexx) LastPos(needle *Rexx, start *Rexx) (*Rexx, error) {
 	if rcvr.chars == nil {
 		rcvr.chars = rcvr.layout()
 	}
-	if startoff >= len(rcvr.chars) {
-		startoff = len(rcvr.chars) - 1
+	if startoff >= int32(len(rcvr.chars)) {
+		startoff = int32(len(rcvr.chars)) - 1
 	}
 	if needle.chars == nil {
 		needle.chars = needle.layout()
 	}
-	nlength := len(needle.chars)
+	nlength := int32(len(needle.chars))
 	if nlength == 0 {
-		return RxFromInt(0), nil
+		return RxFromInt32(0), nil
 	}
 	startoff = startoff - nlength + 1
 	i := startoff
@@ -1446,20 +1492,23 @@ i:
 				continue i
 			}
 		}
-		return RxFromInt(i + 1), nil
+		return RxFromInt32(i + 1), nil
 	}
-	return RxFromInt(0), nil
+	return RxFromInt32(0), nil
 }
+
 func (rcvr *Rexx) Left(length *Rexx, pad *Rexx) (*Rexx, error) {
-	value, err := rcvr.Substr(RxFromInt(1), length, pad)
+	value, err := rcvr.Substr(RxFromInt32(1), length, pad)
 	if err != nil {
 		return nil, err
 	}
 	return value, nil
 }
+
 func (rcvr *Rexx) Length() *Rexx {
-	return RxFromInt(rcvr.intlength())
+	return RxFromInt32(rcvr.intlength())
 }
+
 func (rcvr *Rexx) Lower(n *Rexx, length *Rexx) (*Rexx, error) {
 	num, err := n.intcheck(1, MaxArg)
 	if err != nil {
@@ -1473,24 +1522,25 @@ func (rcvr *Rexx) Lower(n *Rexx, length *Rexx) (*Rexx, error) {
 	if rcvr.chars == nil {
 		rcvr.chars = rcvr.layout()
 	}
-	j := len(rcvr.chars)
+	j := int32(len(rcvr.chars))
 	if j == 0 {
 		tmp := ""
 		return RxFromString(tmp), nil //FIXME STRINGS
 	}
 	res := make([]rune, j)
 	if (leng < j) || (startoff > 0) {
-		copy(res, rcvr.chars) //FIXME
+		copy(res, rcvr.chars) //TODO RECHECK SLICE PARAMS
 	}
 	_17 := j - 1
 	_18 := leng
 	i := startoff
 	for ; i <= _17 && _18 > 0; i++ {
 		res[i] = unicode.ToLower(rcvr.chars[i])
-		_18-- //FIXME
+		_18--
 	}
 	return Rx(res, true), nil
 }
+
 func (rcvr *Rexx) Max(rhs *Rexx) (*Rexx, error) {
 	var ret *Rexx
 	if rcvr.ind == NotaNum {
@@ -1500,11 +1550,11 @@ func (rcvr *Rexx) Max(rhs *Rexx) (*Rexx, error) {
 		return nil, RxException(9, string(rcvr.chars))
 	}
 	leng := DefaultDigits
-	if len(rcvr.mant) > leng {
-		leng = len(rcvr.mant)
+	if int32(len(rcvr.mant)) > leng {
+		leng = int32(len(rcvr.mant))
 	}
-	if len(rhs.mant) > leng {
-		leng = len(rhs.mant)
+	if int32(len(rhs.mant)) > leng {
+		leng = int32(len(rhs.mant))
 	}
 	value, err := rcvr.docompare(RxSetWithDigit(leng), rhs)
 	if err != nil {
@@ -1516,11 +1566,12 @@ func (rcvr *Rexx) Max(rhs *Rexx) (*Rexx, error) {
 		ret = rcvr
 	}
 	leng = DefaultDigits
-	if len(ret.mant) > leng {
-		leng = len(ret.mant)
+	if int32(len(ret.mant)) > leng {
+		leng = int32(len(ret.mant))
 	}
 	return ret.OpPlus(RxSetWithDigit(leng))
 }
+
 func (rcvr *Rexx) Min(rhs *Rexx) (*Rexx, error) {
 	var ret *Rexx
 	if rcvr.ind == NotaNum {
@@ -1530,11 +1581,11 @@ func (rcvr *Rexx) Min(rhs *Rexx) (*Rexx, error) {
 		return nil, RxException(9, string(rcvr.chars))
 	}
 	leng := DefaultDigits
-	if len(rcvr.mant) > leng {
-		leng = len(rcvr.mant)
+	if int32(len(rcvr.mant)) > leng {
+		leng = int32(len(rcvr.mant))
 	}
-	if len(rhs.mant) > leng {
-		leng = len(rhs.mant)
+	if int32(len(rhs.mant)) > leng {
+		leng = int32(len(rhs.mant))
 	}
 	value, err := rcvr.docompare(RxSetWithDigit(leng), rhs)
 	if err != nil {
@@ -1546,11 +1597,12 @@ func (rcvr *Rexx) Min(rhs *Rexx) (*Rexx, error) {
 		ret = rcvr
 	}
 	leng = DefaultDigits
-	if len(ret.mant) > leng {
-		leng = len(ret.mant)
+	if int32(len(ret.mant)) > leng {
+		leng = int32(len(ret.mant))
 	}
 	return ret.OpPlus(RxSetWithDigit(leng))
 }
+
 func (rcvr *Rexx) Overlay(_new *Rexx, n *Rexx, length *Rexx, pad *Rexx) (*Rexx, error) {
 	num, err := n.intcheck(1, MaxArg)
 	if err != nil {
@@ -1572,8 +1624,9 @@ func (rcvr *Rexx) Overlay(_new *Rexx, n *Rexx, length *Rexx, pad *Rexx) (*Rexx, 
 	}
 	return Rx(Overlay(rcvr.chars, _new.chars, num, leng, padchar), true), nil
 }
+
 func (rcvr *Rexx) Pos(needle *Rexx, start *Rexx) (*Rexx, error) {
-	j := 0
+	var j int32 = 0
 	value, err := start.intcheck(1, MaxArg)
 	if err != nil {
 		return nil, err
@@ -1582,27 +1635,28 @@ func (rcvr *Rexx) Pos(needle *Rexx, start *Rexx) (*Rexx, error) {
 	if needle.chars == nil {
 		needle.chars = needle.layout()
 	}
-	if len(needle.chars) == 0 {
-		return RxFromInt(0), nil
+	if int32(len(needle.chars)) == 0 {
+		return RxFromInt32(0), nil
 	}
 	if rcvr.chars == nil {
 		rcvr.chars = rcvr.layout()
 	}
-	_19 := len(rcvr.chars) - len(needle.chars)
+	_19 := int32(len(rcvr.chars)) - int32(len(needle.chars))
 	i := startoff
 i:
 	for ; i <= _19; i++ {
-		_20 := len(needle.chars) - 1
+		_20 := int32(len(needle.chars)) - 1
 		j = 0
 		for ; j <= _20; j++ {
 			if needle.chars[j] != rcvr.chars[i+j] {
 				continue i
 			}
 		}
-		return RxFromInt(i + 1), nil
+		return RxFromInt32(i + 1), nil
 	}
-	return RxFromInt(0), nil
+	return RxFromInt32(0), nil
 }
+
 func (rcvr *Rexx) Reverse() (*Rexx, error) {
 	if rcvr.chars == nil {
 		rcvr.chars = rcvr.layout()
@@ -1621,6 +1675,7 @@ func (rcvr *Rexx) Reverse() (*Rexx, error) {
 	}
 	return Rx(res, true), nil
 }
+
 func (rcvr *Rexx) Right(length *Rexx, pad *Rexx) (*Rexx, error) {
 	leng, err := length.intcheck(0, MaxArg)
 	if err != nil {
@@ -1629,14 +1684,14 @@ func (rcvr *Rexx) Right(length *Rexx, pad *Rexx) (*Rexx, error) {
 	if rcvr.chars == nil {
 		rcvr.chars = rcvr.layout()
 	}
-	trim := len(rcvr.chars) - leng
+	trim := int32(len(rcvr.chars)) - leng
 	if trim >= 0 {
-		n := RxFromInt(trim + 1)
-		check, err := n.ToInt()
+		n := RxFromInt32(trim + 1)
+		check, err := n.ToInt32()
 		if err != nil {
 			return nil, err
 		}
-		x := RxFromInt(rcvr.intlength() + 1 - check)
+		x := RxFromInt32(rcvr.intlength() + 1 - check)
 		length, err := x.Max(RxFromInt8(int8(0)))
 		if err != nil {
 			return nil, err
@@ -1660,6 +1715,7 @@ func (rcvr *Rexx) Right(length *Rexx, pad *Rexx) (*Rexx, error) {
 	copy(res[i:], rcvr.chars[0:len(res)-i])
 	return Rx(res, true), nil
 }
+
 func (rcvr *Rexx) Sequence(_final *Rexx) (*Rexx, error) {
 	startchar, err := rcvr.padcheck()
 	if err != nil {
@@ -1682,12 +1738,14 @@ func (rcvr *Rexx) Sequence(_final *Rexx) (*Rexx, error) {
 	}
 	return Rx(car, true), nil
 }
+
 func (rcvr *Rexx) Sign() (*Rexx, error) {
 	if rcvr.ind == NotaNum {
 		return nil, RxException(9, string(rcvr.chars))
 	}
 	return RxFromInt8(rcvr.ind), nil
 }
+
 func (rcvr *Rexx) Space(n *Rexx, pad *Rexx) (*Rexx, error) {
 	gap, err := n.intcheck(0, MaxArg)
 	if err != nil {
@@ -1702,6 +1760,7 @@ func (rcvr *Rexx) Space(n *Rexx, pad *Rexx) (*Rexx, error) {
 	}
 	return ToRxFromRunes(Space(rcvr.chars, gap, padchar)), nil
 }
+
 func (rcvr *Rexx) Strip(opt *Rexx, pad *Rexx) (*Rexx, error) {
 	startoff := 0
 	endoff := 0
@@ -1753,9 +1812,10 @@ func (rcvr *Rexx) Strip(opt *Rexx, pad *Rexx) (*Rexx, error) {
 	}
 	leng := endoff - startoff + 1
 	subchars := make([]rune, leng)
-	copy(subchars, rcvr.chars[startoff:]) //FIXME DROPS
+	copy(subchars, rcvr.chars[startoff:]) //TODO RECHECK SLICE PARAMS
 	return Rx(subchars, true), nil
 }
+
 func (rcvr *Rexx) Substr(n *Rexx, length *Rexx, pad *Rexx) (*Rexx, error) {
 	value, err := n.intcheck(1, MaxArg)
 	if err != nil {
@@ -1773,13 +1833,13 @@ func (rcvr *Rexx) Substr(n *Rexx, length *Rexx, pad *Rexx) (*Rexx, error) {
 	if rcvr.chars == nil {
 		rcvr.chars = rcvr.layout()
 	}
-	thislen := len(rcvr.chars)
+	thislen := int32(len(rcvr.chars))
 	subchars := make([]rune, leng)
 	if startoff+leng <= thislen {
-		copy(subchars, rcvr.chars[startoff:]) //FIXME DROPS
+		copy(subchars, rcvr.chars[startoff:]) //TODO RECHECK SLICE PARAMS
 	} else {
 		if startoff < thislen {
-			copy(subchars, rcvr.chars[startoff:]) //FIXME DROPS CORRECTS ITSELF
+			copy(subchars, rcvr.chars[startoff:]) //TODO RECHECK SLICE PARAMS
 		} else {
 			startoff = thislen
 		}
@@ -1791,6 +1851,7 @@ func (rcvr *Rexx) Substr(n *Rexx, length *Rexx, pad *Rexx) (*Rexx, error) {
 	}
 	return Rx(subchars, true), nil
 }
+
 func (rcvr *Rexx) SubWord(n *Rexx, length *Rexx) (*Rexx, error) {
 	start, err := n.intcheck(1, MaxArg)
 	if err != nil {
@@ -1805,6 +1866,7 @@ func (rcvr *Rexx) SubWord(n *Rexx, length *Rexx) (*Rexx, error) {
 	}
 	return ToRxFromRunes(SubWord(rcvr.chars, start, leng)), nil
 }
+
 func (rcvr *Rexx) Translate(tableo *Rexx, tablei *Rexx, pad *Rexx) (*Rexx, error) {
 	padchar, err := pad.padcheck()
 	if err != nil {
@@ -1821,6 +1883,7 @@ func (rcvr *Rexx) Translate(tableo *Rexx, tablei *Rexx, pad *Rexx) (*Rexx, error
 	}
 	return ToRxFromRunes(Translate(rcvr.chars, tableo.chars, tablei.chars, padchar)), nil
 }
+
 func (rcvr *Rexx) Trunc(n *Rexx) (*Rexx, error) {
 	if rcvr.ind == NotaNum {
 		return nil, RxException(9, string(rcvr.chars))
@@ -1835,6 +1898,7 @@ func (rcvr *Rexx) Trunc(n *Rexx) (*Rexx, error) {
 	}
 	return RxFromRunes(value), nil
 }
+
 func (rcvr *Rexx) Upper(n *Rexx, length *Rexx) (*Rexx, error) {
 	value, err := n.intcheck(1, MaxArg)
 	if err != nil {
@@ -1848,7 +1912,7 @@ func (rcvr *Rexx) Upper(n *Rexx, length *Rexx) (*Rexx, error) {
 	if rcvr.chars == nil {
 		rcvr.chars = rcvr.layout()
 	}
-	j := len(rcvr.chars)
+	j := int32(len(rcvr.chars))
 	if j == 0 {
 		return RxFromString(""), nil
 	}
@@ -1861,10 +1925,11 @@ func (rcvr *Rexx) Upper(n *Rexx, length *Rexx) (*Rexx, error) {
 	i := startoff
 	for ; i <= _26 && _27 > 0; i++ {
 		res[i] = unicode.ToUpper(rcvr.chars[i])
-		_27-- //FIXME
+		_27--
 	}
 	return Rx(res, true), nil
 }
+
 func (rcvr *Rexx) Verify(list *Rexx, opt *Rexx, start *Rexx) (*Rexx, error) {
 	ochar, err := opt.optioncheck("NM")
 	if err != nil {
@@ -1881,10 +1946,11 @@ func (rcvr *Rexx) Verify(list *Rexx, opt *Rexx, start *Rexx) (*Rexx, error) {
 		list.chars = list.layout()
 	}
 	if ochar == 'N' {
-		return RxFromInt(Verifyn(rcvr.chars, list.chars, from)), nil
+		return RxFromInt32(Verifyn(rcvr.chars, list.chars, from)), nil
 	}
-	return RxFromInt(Verifym(rcvr.chars, list.chars, from)), nil
+	return RxFromInt32(Verifym(rcvr.chars, list.chars, from)), nil
 }
+
 func (rcvr *Rexx) Word(n *Rexx) (*Rexx, error) {
 	value, err := rcvr.SubWord(n, RxFromInt8(int8(1)))
 	if err != nil {
@@ -1892,6 +1958,7 @@ func (rcvr *Rexx) Word(n *Rexx) (*Rexx, error) {
 	}
 	return value, nil
 }
+
 func (rcvr *Rexx) WordIndex(n *Rexx) (*Rexx, error) {
 	from, err := n.intcheck(1, MaxArg)
 	if err != nil {
@@ -1900,8 +1967,9 @@ func (rcvr *Rexx) WordIndex(n *Rexx) (*Rexx, error) {
 	if rcvr.chars == nil {
 		rcvr.chars = rcvr.layout()
 	}
-	return RxFromInt(WordIndex(rcvr.chars, from)), nil
+	return RxFromInt32(WordIndex(rcvr.chars, from)), nil
 }
+
 func (rcvr *Rexx) WordLength(n *Rexx) (*Rexx, error) {
 	from, err := n.intcheck(1, MaxArg)
 	if err != nil {
@@ -1910,8 +1978,9 @@ func (rcvr *Rexx) WordLength(n *Rexx) (*Rexx, error) {
 	if rcvr.chars == nil {
 		rcvr.chars = rcvr.layout()
 	}
-	return RxFromInt(WordLength(rcvr.chars, from)), nil
+	return RxFromInt32(WordLength(rcvr.chars, from)), nil
 }
+
 func (rcvr *Rexx) WordPos(needle *Rexx, num *Rexx) (*Rexx, error) {
 	n, err := num.intcheck(1, MaxArg)
 	if err != nil {
@@ -1923,11 +1992,13 @@ func (rcvr *Rexx) WordPos(needle *Rexx, num *Rexx) (*Rexx, error) {
 	if needle.chars == nil {
 		needle.chars = needle.layout()
 	}
-	return RxFromInt(WordPos(needle.chars, rcvr.chars, n)), nil
+	return RxFromInt32(WordPos(needle.chars, rcvr.chars, n)), nil
 }
+
 func (rcvr *Rexx) Words() (*Rexx, error) {
-	return RxFromInt(rcvr.intwords()), nil
+	return RxFromInt32(rcvr.intwords()), nil
 }
+
 func (rcvr *Rexx) X2b() (*Rexx, error) {
 	if rcvr.chars == nil {
 		rcvr.chars = rcvr.layout()
@@ -1941,6 +2012,7 @@ func (rcvr *Rexx) X2b() (*Rexx, error) {
 	}
 	return RxFromRunes(value), nil
 }
+
 func (rcvr *Rexx) X2c() (*Rexx, error) {
 	if rcvr.chars == nil {
 		rcvr.chars = rcvr.layout()
@@ -1954,9 +2026,9 @@ func (rcvr *Rexx) X2c() (*Rexx, error) {
 	}
 	return RxFromRune(value), nil
 }
+
 func (rcvr *Rexx) X2d(n *Rexx) (*Rexx, error) {
-	//num, err := n.intcheck(0, MaxArg)
-	//allow -1 FIXME MinArg
+	// allow -1
 	num, err := n.intcheck(-1, MaxArg)
 	if err != nil {
 		return nil, err
@@ -1970,12 +2042,15 @@ func (rcvr *Rexx) X2d(n *Rexx) (*Rexx, error) {
 	}
 	return ToRxFromRunes(value), nil
 }
+
 func (rcvr *Rexx) OpCc(set *RexxSet, rhs *Rexx) *Rexx {
 	return rcvr.concat(set, rhs, 0)
 }
+
 func (rcvr *Rexx) OpCcblank(set *RexxSet, rhs *Rexx) *Rexx {
 	return rcvr.concat(set, rhs, 1)
 }
+
 func (rcvr *Rexx) OpEq(set *RexxSet, rhs *Rexx) (bool, error) {
 	value, err := rcvr.docompare(set, rhs)
 	if err != nil {
@@ -1983,6 +2058,7 @@ func (rcvr *Rexx) OpEq(set *RexxSet, rhs *Rexx) (bool, error) {
 	}
 	return value == 0, nil
 }
+
 func (rcvr *Rexx) OpNotEq(set *RexxSet, rhs *Rexx) (bool, error) {
 	value, err := rcvr.docompare(set, rhs)
 	if err != nil {
@@ -1990,6 +2066,7 @@ func (rcvr *Rexx) OpNotEq(set *RexxSet, rhs *Rexx) (bool, error) {
 	}
 	return value != 0, nil
 }
+
 func (rcvr *Rexx) OpLt(set *RexxSet, rhs *Rexx) (bool, error) {
 	value, err := rcvr.docompare(set, rhs)
 	if err != nil {
@@ -1997,6 +2074,7 @@ func (rcvr *Rexx) OpLt(set *RexxSet, rhs *Rexx) (bool, error) {
 	}
 	return value < 0, nil
 }
+
 func (rcvr *Rexx) OpGt(set *RexxSet, rhs *Rexx) (bool, error) {
 	value, err := rcvr.docompare(set, rhs)
 	if err != nil {
@@ -2004,6 +2082,7 @@ func (rcvr *Rexx) OpGt(set *RexxSet, rhs *Rexx) (bool, error) {
 	}
 	return value > 0, nil
 }
+
 func (rcvr *Rexx) OpLtEq(set *RexxSet, rhs *Rexx) (bool, error) {
 	value, err := rcvr.docompare(set, rhs)
 	if err != nil {
@@ -2011,6 +2090,7 @@ func (rcvr *Rexx) OpLtEq(set *RexxSet, rhs *Rexx) (bool, error) {
 	}
 	return value <= 0, nil
 }
+
 func (rcvr *Rexx) OpGtEq(set *RexxSet, rhs *Rexx) (bool, error) {
 	value, err := rcvr.docompare(set, rhs)
 	if err != nil {
@@ -2018,24 +2098,31 @@ func (rcvr *Rexx) OpGtEq(set *RexxSet, rhs *Rexx) (bool, error) {
 	}
 	return value >= 0, nil
 }
+
 func (rcvr *Rexx) OpEqS(set *RexxSet, rhs *Rexx) bool {
 	return rcvr.docomparestrict(set, rhs) == 0
 }
+
 func (rcvr *Rexx) OpNotEqS(set *RexxSet, rhs *Rexx) bool {
 	return rcvr.docomparestrict(set, rhs) != 0
 }
+
 func (rcvr *Rexx) OpLtS(set *RexxSet, rhs *Rexx) bool {
 	return rcvr.docomparestrict(set, rhs) < 0
 }
+
 func (rcvr *Rexx) OpGtS(set *RexxSet, rhs *Rexx) bool {
 	return rcvr.docomparestrict(set, rhs) > 0
 }
+
 func (rcvr *Rexx) OpLtEqS(set *RexxSet, rhs *Rexx) bool {
 	return rcvr.docomparestrict(set, rhs) <= 0
 }
+
 func (rcvr *Rexx) OpGtEqS(set *RexxSet, rhs *Rexx) bool {
 	return rcvr.docomparestrict(set, rhs) >= 0
 }
+
 func (rcvr *Rexx) OpOr(set *RexxSet, rhs *Rexx) (bool, error) {
 	arg1, err := rcvr.ToBool()
 	if err != nil {
@@ -2048,6 +2135,7 @@ func (rcvr *Rexx) OpOr(set *RexxSet, rhs *Rexx) (bool, error) {
 	value := arg1 || arg2
 	return value, nil
 }
+
 func (rcvr *Rexx) OpAnd(set *RexxSet, rhs *Rexx) (bool, error) {
 	arg1, err := rcvr.ToBool()
 	if err != nil {
@@ -2060,6 +2148,7 @@ func (rcvr *Rexx) OpAnd(set *RexxSet, rhs *Rexx) (bool, error) {
 	value := arg1 && arg2
 	return value, nil
 }
+
 func (rcvr *Rexx) OpXor(set *RexxSet, rhs *Rexx) (bool, error) {
 	arg1, err := rcvr.ToBool()
 	if err != nil {
@@ -2072,6 +2161,7 @@ func (rcvr *Rexx) OpXor(set *RexxSet, rhs *Rexx) (bool, error) {
 	}
 	return value, nil
 }
+
 func (rcvr *Rexx) OpNot(set *RexxSet) (bool, error) {
 	arg1, err := rcvr.ToBool()
 	if err != nil {
@@ -2079,6 +2169,7 @@ func (rcvr *Rexx) OpNot(set *RexxSet) (bool, error) {
 	}
 	return !arg1, nil
 }
+
 func (rcvr *Rexx) OpMinus(set *RexxSet) (*Rexx, error) {
 	if rcvr.ind == NotaNum {
 		return nil, RxException(9, string(rcvr.chars))
@@ -2099,6 +2190,7 @@ func (rcvr *Rexx) OpMinus(set *RexxSet) (*Rexx, error) {
 	}
 	return value, nil
 }
+
 func (rcvr *Rexx) OpPlus(set *RexxSet) (*Rexx, error) {
 	if rcvr.ind == NotaNum {
 		return nil, RxException(9, string(rcvr.chars))
@@ -2118,6 +2210,7 @@ func (rcvr *Rexx) OpPlus(set *RexxSet) (*Rexx, error) {
 	}
 	return value, nil
 }
+
 func (rcvr *Rexx) OpSub(set *RexxSet, rhs *Rexx) (*Rexx, error) {
 	if rcvr.ind == NotaNum {
 		return nil, RxException(9, string(rcvr.chars))
@@ -2129,14 +2222,15 @@ func (rcvr *Rexx) OpSub(set *RexxSet, rhs *Rexx) (*Rexx, error) {
 	newrhs.ind = int8(-newrhs.ind)
 	return rcvr.OpAdd(set, newrhs)
 }
+
 func (rcvr *Rexx) OpAdd(set *RexxSet, rhs *Rexx) (*Rexx, error) {
-	resdig := 0
+	var resdig int32 = 0
 	resform := int8(0)
 	usel := []rune(nil)
 	user := []rune(nil)
-	newlen := 0
-	i := 0
-	tlen := 0
+	var newlen int32 = 0
+	var i int32 = 0
+	var tlen int32 = 0
 	ca := rune(0)
 	cb := rune(0)
 	lhs := rcvr
@@ -2175,11 +2269,11 @@ func (rcvr *Rexx) OpAdd(set *RexxSet, rhs *Rexx) (*Rexx, error) {
 		}
 		return value, nil
 	}
-	if len(lhs.mant) > resdig+1 {
+	if int32(len(lhs.mant)) > resdig+1 {
 		lhs = RxFromClone(lhs)
 		lhs.cut(resdig)
 	}
-	if len(rhs.mant) > resdig+1 {
+	if int32(len(rhs.mant)) > resdig+1 {
 		rhs = RxFromClone(rhs)
 		rhs.cut(resdig)
 	}
@@ -2191,20 +2285,20 @@ func (rcvr *Rexx) OpAdd(set *RexxSet, rhs *Rexx) (*Rexx, error) {
 		user = rhs.mant
 		res.exp = lhs.exp
 	} else if lhs.exp > rhs.exp {
-		newlen = len(lhs.mant) + lhs.exp - rhs.exp
-		if newlen > len(rhs.mant)+resdig+1 {
+		newlen = int32(len(lhs.mant)) + lhs.exp - rhs.exp
+		if newlen > int32(len(rhs.mant))+resdig+1 {
 			res.mant = lhs.mant
 			res.exp = lhs.exp
 			res.ind = lhs.ind
-			if len(res.mant) < resdig {
+			if int32(len(res.mant)) < resdig {
 				res.mant = make([]rune, resdig)
 				copy(res.mant, lhs.mant)
 				_28 := resdig - 1
-				i = len(lhs.mant)
+				i = int32(len(lhs.mant))
 				for ; i <= _28; i++ {
 					res.mant[i] = '0'
 				}
-				res.exp = res.exp - (resdig - len(lhs.mant))
+				res.exp = res.exp - (resdig - int32(len(lhs.mant)))
 			}
 			value, err := res.finish(resdig, false)
 			if err != nil {
@@ -2215,18 +2309,18 @@ func (rcvr *Rexx) OpAdd(set *RexxSet, rhs *Rexx) (*Rexx, error) {
 		res.exp = rhs.exp
 		if newlen > resdig+1 {
 			tlen = newlen - resdig - 1
-			user = make([]rune, len(rhs.mant)-tlen)
-			copy(user, rhs.mant[:len(user)]) //FIXME
+			user = make([]rune, int32(len(rhs.mant))-tlen)
+			copy(user, rhs.mant[:len(user)]) //TODO RECHECK SLICE PARAMS
 			res.exp = res.exp + tlen
 			newlen = resdig + 1
 		} else {
 			user = rhs.mant
 		}
-		if newlen > len(lhs.mant) {
+		if newlen > int32(len(lhs.mant)) {
 			usel = make([]rune, newlen)
 			copy(usel, lhs.mant)
 			_29 := newlen - 1
-			i = len(lhs.mant)
+			i = int32(len(lhs.mant))
 			for ; i <= _29; i++ {
 				usel[i] = '0'
 			}
@@ -2234,20 +2328,20 @@ func (rcvr *Rexx) OpAdd(set *RexxSet, rhs *Rexx) (*Rexx, error) {
 			usel = lhs.mant
 		}
 	} else {
-		newlen = len(rhs.mant) + rhs.exp - lhs.exp
-		if newlen > len(lhs.mant)+resdig+1 {
+		newlen = int32(len(rhs.mant)) + rhs.exp - lhs.exp
+		if newlen > int32(len(lhs.mant))+resdig+1 {
 			res.mant = rhs.mant
 			res.exp = rhs.exp
 			res.ind = rhs.ind
-			if len(res.mant) < resdig {
+			if int32(len(res.mant)) < resdig {
 				res.mant = make([]rune, resdig)
 				copy(res.mant, rhs.mant)
 				_30 := resdig - 1
-				i = len(rhs.mant)
+				i = int32(len(rhs.mant))
 				for ; i <= _30; i++ {
 					res.mant[i] = '0'
 				}
-				res.exp = res.exp - (resdig - len(rhs.mant))
+				res.exp = res.exp - (resdig - int32(len(rhs.mant)))
 			}
 			value, err := res.finish(resdig, false)
 			if err != nil {
@@ -2258,18 +2352,18 @@ func (rcvr *Rexx) OpAdd(set *RexxSet, rhs *Rexx) (*Rexx, error) {
 		res.exp = lhs.exp
 		if newlen > resdig+1 {
 			tlen = newlen - resdig - 1
-			usel = make([]rune, len(lhs.mant)-tlen)
-			copy(usel, lhs.mant) //FIXME
+			usel = make([]rune, int32(len(lhs.mant))-tlen)
+			copy(usel, lhs.mant) //TODO RECHECK SLICE PARAMS
 			res.exp = res.exp + tlen
 			newlen = resdig + 1
 		} else {
 			usel = lhs.mant
 		}
-		if newlen > len(rhs.mant) {
+		if newlen > int32(len(rhs.mant)) {
 			user = make([]rune, newlen)
 			copy(user, rhs.mant)
 			_31 := newlen - 1
-			i = len(rhs.mant)
+			i = int32(len(rhs.mant))
 			for ; i <= _31; i++ {
 				user[i] = '0'
 			}
@@ -2332,14 +2426,14 @@ func (rcvr *Rexx) OpAdd(set *RexxSet, rhs *Rexx) (*Rexx, error) {
 	}
 	tempa := charaddsub(usel, user, -1)
 	res.mant = tempa
-	if len(res.mant) > resdig {
+	if int32(len(res.mant)) > resdig {
 		res.round(resdig)
 	}
 	if res.mant[0] == '0' {
-		_32 := len(res.mant)
+		_32 := int32(len(res.mant))
 		i = 1
 		for ; i <= _32; i++ {
-			if i == len(res.mant) {
+			if i == int32(len(res.mant)) {
 				res.mant = make([]rune, 1)
 				res.mant[0] = '0'
 				res.ind = int8(0)
@@ -2347,8 +2441,8 @@ func (rcvr *Rexx) OpAdd(set *RexxSet, rhs *Rexx) (*Rexx, error) {
 				return res, nil
 			}
 			if res.mant[i] != '0' {
-				_new := make([]rune, len(res.mant)-i)
-				copy(_new, res.mant[i:]) //FIXME
+				_new := make([]rune, int32(len(res.mant))-i)
+				copy(_new, res.mant[i:]) //TODO RECHECK SLICE PARAMS
 				res.mant = _new
 				break
 			}
@@ -2356,12 +2450,13 @@ func (rcvr *Rexx) OpAdd(set *RexxSet, rhs *Rexx) (*Rexx, error) {
 	}
 	return res, nil
 }
+
 func (rcvr *Rexx) OpMult(set *RexxSet, rhs *Rexx) (*Rexx, error) {
-	resdig := 0
+	var resdig int32 = 0
 	resform := int8(0)
 	multer := []rune(nil)
 	mand := []rune(nil)
-	mult := 0
+	var mult int32 = 0
 	newmand := []rune(nil)
 	lhs := rcvr
 	if lhs.ind == NotaNum {
@@ -2377,11 +2472,11 @@ func (rcvr *Rexx) OpMult(set *RexxSet, rhs *Rexx) (*Rexx, error) {
 		resdig = set.Digits
 		resform = set.Form
 	}
-	if len(lhs.mant) > resdig+1 {
+	if int32(len(lhs.mant)) > resdig+1 {
 		lhs = RxFromClone(lhs)
 		lhs.cut(resdig)
 	}
-	if len(rhs.mant) > resdig+1 {
+	if int32(len(rhs.mant)) > resdig+1 {
 		rhs = RxFromClone(rhs)
 		rhs.cut(resdig)
 	}
@@ -2401,7 +2496,7 @@ func (rcvr *Rexx) OpMult(set *RexxSet, rhs *Rexx) (*Rexx, error) {
 	acc[0] = '0'
 	n := len(multer) - 1
 	for ; n >= 0; n-- {
-		mult = int(multer[n]) - int('0')
+		mult = int32(multer[n]) - int32('0')
 		if mult > 0 {
 			temp := charaddsub(acc, mand, mult)
 			acc = temp
@@ -2421,18 +2516,22 @@ func (rcvr *Rexx) OpMult(set *RexxSet, rhs *Rexx) (*Rexx, error) {
 	}
 	return value, nil
 }
+
 func (rcvr *Rexx) OpDiv(set *RexxSet, rhs *Rexx) (*Rexx, error) {
 	return rcvr.dodivide('D', set, rhs)
 }
+
 func (rcvr *Rexx) OpDivI(set *RexxSet, rhs *Rexx) (*Rexx, error) {
 	return rcvr.dodivide('I', set, rhs)
 }
+
 func (rcvr *Rexx) OpRem(set *RexxSet, rhs *Rexx) (*Rexx, error) {
 	return rcvr.dodivide('R', set, rhs)
 }
+
 func (rcvr *Rexx) OpPow(set *RexxSet, rhs *Rexx) (*Rexx, error) {
-	d := 0
-	L := 0
+	var d int32 = 0
+	var L int32 = 0
 	var workset *RexxSet
 	if rcvr.ind == NotaNum {
 		return nil, RxException(9, string(rcvr.chars))
@@ -2442,11 +2541,11 @@ func (rcvr *Rexx) OpPow(set *RexxSet, rhs *Rexx) (*Rexx, error) {
 	} else {
 		d = set.Digits
 	}
-	if len(rhs.mant) > d {
+	if int32(len(rhs.mant)) > d {
 		rhs = RxFromClone(rhs)
 		rhs.round(d)
 	}
-	if len(rhs.mant)+rhs.exp > d {
+	if int32(len(rhs.mant))+rhs.exp > d {
 		return nil, RxException(1, "Too many digits: "+rhs.ToString())
 	}
 	n, err := rhs.intcheck(MinArg, MaxArg)
@@ -2454,16 +2553,16 @@ func (rcvr *Rexx) OpPow(set *RexxSet, rhs *Rexx) (*Rexx, error) {
 		return nil, err
 	}
 	lhs := rcvr
-	if len(lhs.mant) > d+1 {
+	if int32(len(lhs.mant)) > d+1 {
 		lhs = RxFromClone(lhs)
 		lhs.cut(d)
 	}
-	one := RxFromInt(1)
+	one := RxFromInt32(1)
 	if rhs.exp == 0 {
-		L = len(rhs.mant)
+		L = int32(len(rhs.mant))
 	} else {
-		rx01 := RxFromInt(n).Length()
-		value, err := rx01.ToInt()
+		rx01 := RxFromInt32(n).Length()
+		value, err := rx01.ToInt32()
 		if err != nil {
 			return nil, err
 		}
@@ -2479,12 +2578,9 @@ func (rcvr *Rexx) OpPow(set *RexxSet, rhs *Rexx) (*Rexx, error) {
 		return res, nil
 	}
 	if n < 0 {
-		n = int(-n)
+		n = int32(-n)
 	}
 	lastbit := 31
-	if strconv.IntSize == 64 {
-		lastbit = 63
-	}
 	seenbit := false
 	i := 1
 	for ; ; i++ {
@@ -2522,12 +2618,13 @@ func (rcvr *Rexx) OpPow(set *RexxSet, rhs *Rexx) (*Rexx, error) {
 	}
 	return rx05, nil
 }
+
 func (rcvr *Rexx) dodivide(code rune, set *RexxSet, rhs *Rexx) (*Rexx, error) {
-	resdig := 0
+	var resdig int32 = 0
 	resform := int8(0)
 	var res *Rexx
-	ca := 0
-	d := 0
+	var ca int32 = 0
+	var d int32 = 0
 	if rcvr.ind == NotaNum {
 		return nil, RxException(9, string(rcvr.chars))
 	}
@@ -2546,21 +2643,21 @@ func (rcvr *Rexx) dodivide(code rune, set *RexxSet, rhs *Rexx) (*Rexx, error) {
 	}
 	lhs := rcvr
 	if lhs.ind == 0 {
-		return RxFromInt(0), nil
+		return RxFromInt32(0), nil
 	}
-	if len(lhs.mant) > resdig+1 {
+	if int32(len(lhs.mant)) > resdig+1 {
 		lhs = RxFromClone(lhs)
 		lhs.cut(resdig)
 	}
-	if len(rhs.mant) > resdig+1 {
+	if int32(len(rhs.mant)) > resdig+1 {
 		rhs = RxFromClone(rhs)
 		rhs.cut(resdig)
 	}
-	newexp := lhs.exp - rhs.exp + len(lhs.mant) - len(rhs.mant)
+	newexp := lhs.exp - rhs.exp + int32(len(lhs.mant)) - int32(len(rhs.mant))
 	if newexp < 0 {
 		if code != 'D' {
 			if code == 'I' {
-				return RxFromInt(0), nil
+				return RxFromInt32(0), nil
 			}
 			res = RxFromClone(lhs)
 			res.dig = resdig
@@ -2582,22 +2679,22 @@ func (rcvr *Rexx) dodivide(code rune, set *RexxSet, rhs *Rexx) (*Rexx, error) {
 	var1 := make([]rune, newlen)
 	copy(var1, lhs.mant)
 	_33 := newlen - 1
-	i := len(lhs.mant)
+	i := int32(len(lhs.mant))
 	for ; i <= _33; i++ {
 		var1[i] = '0'
 	}
 	var2 := make([]rune, newlen)
 	copy(var2, rhs.mant)
 	_34 := newlen - 1
-	i = len(rhs.mant)
+	i = int32(len(rhs.mant))
 	for ; i <= _34; i++ {
 		var2[i] = '0'
 	}
-	c2b := (int(var2[0])-int('0'))*10 + int(var2[1]) - int('0') + 1
-	have := 0
+	c2b := (int32(var2[0])-int32('0'))*10 + int32(var2[1]) - int32('0') + 1
+	var have int32 = 0
 outer:
 	for {
-		thisdigit := 0
+		var thisdigit int32 = 0
 	inner:
 		for {
 			if len(var1) < len(var2) {
@@ -2606,8 +2703,8 @@ outer:
 			if len(var1) == len(var2) {
 			compare:
 				for {
-					_35 := len(var1) - 1
-					i = 0
+					_35 := int32(len(var1)) - 1
+					var i int32 = 0
 					for ; i <= _35; i++ {
 						if var1[i] < var2[i] {
 							break inner
@@ -2618,7 +2715,7 @@ outer:
 					}
 					if code != 'R' {
 						thisdigit++
-						res.mant[have] = rune(thisdigit + int('0'))
+						res.mant[have] = rune(thisdigit + int32('0'))
 						have++
 						break outer
 					}
@@ -2626,11 +2723,11 @@ outer:
 						break
 					}
 				}
-				ca = int(var1[0]) - int('0')
+				ca = int32(var1[0]) - int32('0')
 			} else {
-				ca = (int(var1[0]) - int('0')) * 10
+				ca = (int32(var1[0]) - int32('0')) * 10
 				if len(var1) > 1 {
-					ca = ca + int(var1[1]) - int('0')
+					ca = ca + int32(var1[1]) - int32('0')
 				}
 			}
 			mult := ca * 10 / c2b
@@ -2638,13 +2735,13 @@ outer:
 				mult = 1
 			}
 			thisdigit = thisdigit + mult
-			var1 = charaddsub(var1, var2, int(-mult))
+			var1 = charaddsub(var1, var2, int32(-mult))
 			if var1[0] != '0' {
 				continue inner
 			}
-			d = len(var1)
+			d = int32(len(var1))
 			_36 := d - 2
-			start := 0
+			var start int32 = 0
 		start:
 			for ; start <= _36; start++ {
 				if var1[start] != '0' {
@@ -2657,7 +2754,7 @@ outer:
 			var1 = reduced
 		}
 		if (have != 0) || (thisdigit != 0) {
-			res.mant[have] = rune(thisdigit + int('0'))
+			res.mant[have] = rune(thisdigit + int32('0'))
 			have++
 			if have == resdig+1 {
 				break outer
@@ -2683,9 +2780,9 @@ outer:
 	}
 	if code != 'R' {
 		if have == 0 {
-			return RxFromInt(0), nil
+			return RxFromInt32(0), nil
 		}
-		if have == len(res.mant) {
+		if have == int32(len(res.mant)) {
 			res.round(resdig)
 			have = resdig
 		}
@@ -2710,12 +2807,12 @@ outer:
 		return value, nil
 	}
 	if var1[0] == '0' {
-		return RxFromInt(0), nil
+		return RxFromInt32(0), nil
 	}
 	res.ind = lhs.ind
-	padding := resdig + resdig + 1 - len(lhs.mant)
+	padding := resdig + resdig + 1 - int32(len(lhs.mant))
 	res.exp = res.exp - padding + lhs.exp
-	d = len(var1)
+	d = int32(len(var1))
 	i = d - 1
 i:
 	for ; i >= 1; i-- {
@@ -2728,7 +2825,7 @@ i:
 		d--
 		res.exp = res.exp + 1
 	}
-	if d < len(var1) {
+	if d < int32(len(var1)) {
 		newvar1 := make([]rune, d)
 		copy(newvar1, var1)
 		var1 = newvar1
@@ -2740,8 +2837,9 @@ i:
 	}
 	return value, nil
 }
-func (rcvr *Rexx) cut(d int) {
-	adjust := len(rcvr.mant) - d - 1
+
+func (rcvr *Rexx) cut(d int32) {
+	adjust := int32(len(rcvr.mant)) - d - 1
 	if adjust <= 0 {
 		return
 	}
@@ -2752,9 +2850,10 @@ func (rcvr *Rexx) cut(d int) {
 	rcvr.chars = nil
 	return
 }
-func (rcvr *Rexx) round(d int) {
+
+func (rcvr *Rexx) round(d int32) {
 	var use []rune
-	adjust := len(rcvr.mant) - d
+	adjust := int32(len(rcvr.mant)) - d
 	if adjust <= 0 {
 		return
 	}
@@ -2768,7 +2867,7 @@ func (rcvr *Rexx) round(d int) {
 	add := make([]rune, 1)
 	add[0] = '5'
 	_new := charaddsub(use, add, 1)
-	if len(_new) > d+1 {
+	if int32(len(_new)) > d+1 {
 		rcvr.exp++
 	}
 	res := make([]rune, d)
@@ -2777,68 +2876,71 @@ func (rcvr *Rexx) round(d int) {
 	rcvr.chars = nil
 	return
 }
-func charaddsub(a []rune, b []rune, m int) []rune {
-	da := 0
-	ap := len(a) - 1
-	bp := len(b) - 1
+
+func charaddsub(a []rune, b []rune, m int32) []rune {
+	var da int32 = 0
+	ap := int32(len(a)) - 1
+	bp := int32(len(b)) - 1
 	maxarr := ap
 	if bp > maxarr {
 		maxarr = bp
 	}
 	res := make([]rune, maxarr+1)
-	carry := 0
+	var carry int32 = 0
 	op := maxarr
 	for ; op >= 0; op-- {
 		da = carry
 		if ap >= 0 {
-			da = da + int(a[ap]) - int('0')
+			da = da + int32(a[ap]) - int32('0')
 			ap--
 		}
 		if bp >= 0 {
-			da = da + (int(b[bp])-int('0'))*m
+			da = da + (int32(b[bp])-int32('0'))*m
 			bp--
 		}
 		if da < 0 {
 			da = da + 100
 			carry = da/10 - 10
-			res[op] = rune(da%10 + int('0'))
+			res[op] = rune(da%10 + int32('0'))
 			continue
 		}
 		if da > 9 {
 			carry = da / 10
-			res[op] = rune(da%10 + int('0'))
+			res[op] = rune(da%10 + int32('0'))
 			continue
 		}
 		carry = 0
-		res[op] = rune(da + int('0'))
+		res[op] = rune(da + int32('0'))
 	}
 	if carry == 0 {
 		return res
 	}
 	_new := make([]rune, maxarr+2)
-	_new[0] = rune(carry + int('0'))
+	_new[0] = rune(carry + int32('0'))
 	copy(_new[1:], res)
 	return _new
 }
-func (rcvr *Rexx) concat(set *RexxSet, rhs *Rexx, blanks int) *Rexx {
+
+func (rcvr *Rexx) concat(set *RexxSet, rhs *Rexx, blanks int32) *Rexx {
 	if rcvr.chars == nil {
 		rcvr.chars = rcvr.layout()
 	}
 	if rhs.chars == nil {
 		rhs.chars = rhs.layout()
 	}
-	res := make([]rune, len(rcvr.chars)+len(rhs.chars)+blanks)
+	res := make([]rune, int32(len(rcvr.chars))+int32(len(rhs.chars))+blanks)
 	copy(res, rcvr.chars)
 	if blanks > 0 {
-		_37 := len(rcvr.chars) + blanks - 1
-		i := len(rcvr.chars)
+		_37 := int32(len(rcvr.chars)) + blanks - 1
+		i := int32(len(rcvr.chars))
 		for ; i <= _37; i++ {
 			res[i] = ' '
 		}
 	}
-	copy(res[len(rcvr.chars)+blanks:], rhs.chars) //FIXME
+	copy(res[int32(len(rcvr.chars))+blanks:], rhs.chars) //TODO RECHECK SLICE PARAMS
 	return Rx(res, true)
 }
+
 func sa2ca(s []string) []rune {
 	seglen := 0
 	blanks := len(s) - 1
@@ -2866,6 +2968,7 @@ func sa2ca(s []string) []rune {
 	}
 	return res
 }
+
 func (rcvr *Rexx) docompare(set *RexxSet, rhs *Rexx) (int8, error) {
 	cl := rune(0)
 	cr := rune(0)
@@ -2873,11 +2976,11 @@ func (rcvr *Rexx) docompare(set *RexxSet, rhs *Rexx) (int8, error) {
 		if rhs.ind != NotaNum {
 			for {
 				if (rcvr.ind == rhs.ind) && (rcvr.exp == rhs.exp) {
-					thislength := len(rcvr.mant)
-					if thislength < len(rhs.mant) {
+					thislength := int32(len(rcvr.mant))
+					if thislength < int32(len(rhs.mant)) {
 						return int8(-rcvr.ind), nil
 					}
-					if thislength > len(rhs.mant) {
+					if thislength > int32(len(rhs.mant)) {
 						return rcvr.ind, nil
 					}
 					rcvr.dig = DefaultDigits
@@ -2886,7 +2989,7 @@ func (rcvr *Rexx) docompare(set *RexxSet, rhs *Rexx) (int8, error) {
 					}
 					if thislength <= rcvr.dig {
 						_40 := thislength - 1
-						i := 0
+						var i int32 = 0
 						for ; i <= _40; i++ {
 							if rcvr.mant[i] < rhs.mant[i] {
 								return int8(-rcvr.ind), nil
@@ -2988,7 +3091,8 @@ _43:
 	}
 	return 0, nil
 }
-func (rcvr *Rexx) docomparestrict(set *RexxSet, rhs *Rexx) int {
+
+func (rcvr *Rexx) docomparestrict(set *RexxSet, rhs *Rexx) int32 {
 	cl := rune(0)
 	cr := rune(0)
 	if rcvr.chars == nil {
@@ -3029,8 +3133,9 @@ _44:
 	}
 	return 0
 }
-func (rcvr *Rexx) finish(roundlen int, strip bool) (*Rexx, error) {
-	if len(rcvr.mant) > roundlen {
+
+func (rcvr *Rexx) finish(roundlen int32, strip bool) (*Rexx, error) {
+	if int32(len(rcvr.mant)) > roundlen {
 		rcvr.round(roundlen)
 	}
 	if strip {
@@ -3053,7 +3158,7 @@ func (rcvr *Rexx) finish(roundlen int, strip bool) (*Rexx, error) {
 	i := 0
 	for ; i <= _45; i++ {
 		if rcvr.mant[i] != '0' {
-			mag := rcvr.exp + len(rcvr.mant) - 1
+			mag := rcvr.exp + int32(len(rcvr.mant)) - 1
 			if (mag < MinExp) || (mag > MaxExp) {
 			overflow:
 				for {
@@ -3069,7 +3174,7 @@ func (rcvr *Rexx) finish(roundlen int, strip bool) (*Rexx, error) {
 							}
 						}
 					}
-					return nil, RxException(5, strconv.Itoa(mag))
+					return nil, RxException(5, strconv.Itoa(int(mag)))
 				}
 			}
 			return rcvr, nil
@@ -3082,12 +3187,14 @@ func (rcvr *Rexx) finish(roundlen int, strip bool) (*Rexx, error) {
 			}
 		}
 	}
-	return RxFromInt(0), nil
+	return RxFromInt32(0), nil
 }
+
 func (rcvr *Rexx) Clear() {
 	rcvr.coll = nil
 	return
 }
+
 func (rcvr *Rexx) CompareTo(i2 string) (int, error) {
 	j := RxFromString(i2)
 	lt, err := rcvr.OpLt(nil, j)
@@ -3106,9 +3213,11 @@ func (rcvr *Rexx) CompareTo(i2 string) (int, error) {
 	}
 	return 0, nil
 }
+
 func (rcvr *Rexx) ContainsKey(key *Rexx) bool {
 	return rcvr.TestNode(key)
 }
+
 func (rcvr *Rexx) ContainsValue(value *Rexx) bool {
 	var rv *Rexx
 	if rcvr.coll == nil {
@@ -3124,9 +3233,11 @@ func (rcvr *Rexx) ContainsValue(value *Rexx) bool {
 	}
 	return false
 }
+
 func (rcvr *Rexx) Exists(key *Rexx) *Rexx {
 	return RxFromBool(rcvr.TestNode(key))
 }
+
 func (rcvr *Rexx) GetNode(key *Rexx) *RexxNode {
 	if rcvr.coll == nil {
 		rcvr.mux.Lock()
@@ -3144,18 +3255,21 @@ func (rcvr *Rexx) GetNode(key *Rexx) *RexxNode {
 	rcvr.coll[key] = node
 	return node
 }
+
 func (rcvr *Rexx) IsEmpty() bool {
 	if rcvr.coll == nil {
 		return true
 	}
 	return rcvr.Size(0) == 0
 }
+
 func (rcvr *Rexx) IsIndexed() *Rexx {
 	if rcvr.Size(0) == 0 {
 		return RxFromInt8(int8(0))
 	}
 	return RxFromInt8(int8(1))
 }
+
 func (rcvr *Rexx) Keys() []*Rexx {
 	if rcvr.coll == nil {
 		rcvr.mux.Lock()
@@ -3170,15 +3284,16 @@ func (rcvr *Rexx) Keys() []*Rexx {
 	}
 	return rxkeys
 }
-func (rcvr *Rexx) Size(check int) int {
-	icount := 0
-	index := 0
+
+func (rcvr *Rexx) Size(check int) int32 {
+	var icount int32 = 0
+	var index int32 = 0
 	if rcvr.coll == nil {
 		return 0
 	}
 	rxkeys := rcvr.Keys()
 	rcvr.mux.Lock()
-	for ; index < len(rxkeys); index++ {
+	for ; index < int32(len(rxkeys)); index++ {
 		node := rcvr.coll[rxkeys[index]]
 		if node.Leaf == nil {
 			continue
@@ -3187,7 +3302,7 @@ func (rcvr *Rexx) Size(check int) int {
 			continue
 		}
 		icount++
-		rx01, _ := RxFromInt(check).ToBool()
+		rx01, _ := RxFromInt32(int32(check)).ToBool()
 		if rx01 {
 			return 1
 		}
@@ -3195,6 +3310,7 @@ func (rcvr *Rexx) Size(check int) int {
 	rcvr.mux.Unlock()
 	return icount
 }
+
 func (rcvr *Rexx) TestNode(key *Rexx) bool {
 	if rcvr.coll == nil {
 		return false
@@ -3210,10 +3326,9 @@ func (rcvr *Rexx) TestNode(key *Rexx) bool {
 			return true
 		}
 	}
-	// 	return false
-	// }
 	return false
 }
+
 func (rcvr *Rexx) CopyIndexed(r *Rexx) *Rexx {
 	if r.coll == nil {
 		return rcvr
@@ -3236,17 +3351,20 @@ func (rcvr *Rexx) CopyIndexed(r *Rexx) *Rexx {
 	r.mux.Unlock()
 	return rcvr
 }
+
 func (rcvr *Rexx) Get(key *Rexx) *Rexx {
 	if rcvr.TestNode(key) {
 		return rcvr.GetNode(key).Leaf
 	}
 	return nil
 }
+
 func (rcvr *Rexx) Put(key *Rexx, value *Rexx) *Rexx {
 	returnval := rcvr.Get(key)
 	rcvr.GetNode(key).Leaf = value
 	return returnval
 }
+
 func (rcvr *Rexx) Remove(key *Rexx) (*Rexx, error) {
 	if key == nil {
 		return nil, RxException(1, "key cannot be nil")
@@ -3255,33 +3373,28 @@ func (rcvr *Rexx) Remove(key *Rexx) (*Rexx, error) {
 	rcvr.GetNode(key).Leaf = nil
 	return returnval, nil
 }
+
 func (rcvr *Rexx) PutAll(t *Rexx) (*Rexx, error) {
 	if t == nil {
 		return nil, RxException(1, "t cannot be nil")
 	}
 	return rcvr.CopyIndexed(t), nil
 }
+
 func (rcvr *Rexx) Equals(rhs *Rexx) bool {
 	if rhs == nil {
 		return false
 	}
-	// 	return rcvr.docomparestrict(nil, rhs) == 0
-	// }
-	// 	return docomparestrict(nil, Newnetrexx.lang.Rexx(rhs.(*java.lang.String))) == 0
-	// }
-	// 	return docomparestrict(nil, Newnetrexx.lang.Rexx(rhs.([]char))) == 0
-	// }
-	//return false
 	return rcvr.docomparestrict(nil, rhs) == 0
 }
 
-func getdigit(char rune) int {
+func getdigit(char rune) int32 {
 	if unicode.IsDigit(char) {
 		if int(char) >= 66720 {
 			match := uint32(char)
 			for _, seek := range unicode.Nd.R32 {
 				if seek.Lo <= match && match <= seek.Hi {
-					number := 0
+					var number int32 = 0
 					for scan := seek.Lo; scan <= seek.Hi; scan += seek.Stride {
 						if number > 9 {
 							number = 0
@@ -3297,7 +3410,7 @@ func getdigit(char rune) int {
 			match := uint16(char)
 			for _, seek := range unicode.Nd.R16 {
 				if seek.Lo <= match && match <= seek.Hi {
-					number := 0
+					var number int32 = 0
 					for scan := seek.Lo; scan <= seek.Hi; scan += seek.Stride {
 						if number > 9 {
 							number = 0

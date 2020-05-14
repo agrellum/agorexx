@@ -5,9 +5,9 @@ import (
 	"strconv"
 )
 
-var zero = RxFromInt(0)
-var one = RxFromInt(1)
-var sixteen = RxFromInt(16)
+var zero = RxFromInt32(0)
+var one = RxFromInt32(1)
+var sixteen = RxFromInt32(16)
 
 type RexxUtil struct {
 	*Rexx
@@ -61,19 +61,19 @@ func Translate(s []rune, out []rune, in []rune, pad rune) []rune {
 	return res
 }
 
-func D2x(d *Rexx, n int) ([]rune, error) {
+func D2x(d *Rexx, n int32) ([]rune, error) {
 	var set *RexxSet
 	var work *Rexx
 	neg := false
 	fill := rune(0)
-	need := 0
-	j := 0
-	newlen := 0
+	var need int32 = 0
+	var j int32 = 0
+	var newlen int32 = 0
 	if d.ind == NotaNum {
 		return nil, RxException(9, d.ToString())
 	}
-	if len(d.mant) > DefaultDigits {
-		set = RxSetWithDigit(len(d.mant))
+	if int32(len(d.mant)) > DefaultDigits {
+		set = RxSetWithDigit(int32(len(d.mant)))
 	} else {
 		set = nil
 	}
@@ -98,19 +98,19 @@ func D2x(d *Rexx, n int) ([]rune, error) {
 		fill = '0'
 	}
 	if n < 0 {
-		need = len(work.mant)
+		need = int32(len(work.mant))
 	} else {
 		need = n
 	}
 	res := make([]rune, need)
-	i := len(res) - 1
+	i := int32(len(res)) - 1
 i:
 	for ; i >= 0; i-- {
 		rx03, err := work.OpRem(set, sixteen)
 		if err != nil {
 			return nil, err
 		}
-		rem, err := rx03.ToInt()
+		rem, err := rx03.ToInt32()
 		if err != nil {
 			return nil, err
 		}
@@ -135,7 +135,7 @@ i:
 			if i == 0 {
 				return res, nil
 			}
-			newlen = len(res) - i
+			newlen = int32(len(res)) - i
 			newres := make([]rune, newlen)
 			copy(newres, res[i:])
 			return newres, nil
@@ -145,11 +145,11 @@ i:
 }
 
 func X2b(x *Rexx) ([]rune, error) {
-	j := 0
-	k := 0
+	var j int32 = 0
+	var k int32 = 0
 	res := make([]rune, len(x.chars)*4)
-	_4 := len(x.chars)
-	i := 0
+	_4 := int32(len(x.chars))
+	var i int32 = 0
 	for ; _4 > 0; _4-- {
 		j = hexint(x.chars[i])
 		if j < 0 {
@@ -182,16 +182,16 @@ func X2b(x *Rexx) ([]rune, error) {
 }
 
 func X2c(x *Rexx) (rune, error) {
-	j := 0
-	_5 := len(x.chars) - 2
-	i := 0
+	var j int32 = 0
+	_5 := int32(len(x.chars)) - 2
+	var i int32 = 0
 	for ; i <= _5; i++ {
 		if x.chars[i] != '0' {
 			break
 		}
 	}
-	acc := 0
-	_6 := len(x.chars) - 1
+	var acc int32 = 0
+	_6 := int32(len(x.chars)) - 1
 	for ; i <= _6; i++ {
 		j = hexint(x.chars[i])
 		if j < 0 {
@@ -205,31 +205,31 @@ func X2c(x *Rexx) (rune, error) {
 	return rune(acc), nil
 }
 
-func X2d(x *Rexx, n int) ([]rune, error) {
-	start := 0
+func X2d(x *Rexx, n int32) ([]rune, error) {
+	var start int32 = 0
 	var set *RexxSet
-	nibble := 0
+	var nibble int32 = 0
 	neg := false
-	if (n == 0) || (len(x.chars) == 0) {
+	if (n == 0) || (int32(len(x.chars)) == 0) {
 		return []rune("0"), nil
 	} else if n < 0 {
 		start = 0
-	} else if n > len(x.chars) {
+	} else if n > int32(len(x.chars)) {
 		start = 0
 	} else {
-		start = len(x.chars) - n
+		start = int32(len(x.chars)) - n
 		if (x.chars[start] > '7') || (x.chars[start] < '0') {
 			neg = true
 		}
 	}
-	digs := ((len(x.chars) * 5) / 4) + 1
+	digs := ((int32(len(x.chars)) * 5) / 4) + 1
 	if digs > DefaultDigits {
 		set = RxSetWithDigit(digs)
 	} else {
 		set = nil
 	}
-	work := RxFromInt(0)
-	_7 := len(x.chars) - 1
+	work := RxFromInt32(0)
+	_7 := int32(len(x.chars)) - 1
 	i := start
 	for ; i <= _7; i++ {
 		nibble = hexint(x.chars[i])
@@ -243,7 +243,7 @@ func X2d(x *Rexx, n int) ([]rune, error) {
 		if err != nil {
 			return nil, err
 		}
-		rx02, err := rx01.OpAdd(set, RxFromInt(nibble))
+		rx02, err := rx01.OpAdd(set, RxFromInt32(nibble))
 		if err != nil {
 			return nil, err
 		}
@@ -263,7 +263,7 @@ func X2d(x *Rexx, n int) ([]rune, error) {
 	return work.ToRunes(), nil
 }
 
-func Float64Pow(x float64, n int) (float64, error) {
+func Float64Pow(x float64, n int32) (float64, error) {
 	neg := false
 	if n == 0 {
 		return float64(int8(1)), nil
@@ -271,15 +271,12 @@ func Float64Pow(x float64, n int) (float64, error) {
 	if n > 0 {
 		neg = false
 	} else {
-		n = int(-n)
+		n = int32(-n)
 		neg = true
 	}
-	lastbit := 31
-	if strconv.IntSize == 64 {
-		lastbit = 63
-	}
+	var lastbit int32 = 31
 	acc := float64(1)
-	i := 1
+	var i int32 = 1
 	for ; ; i++ {
 		n = n << 1
 		if n < 0 {
@@ -290,7 +287,7 @@ func Float64Pow(x float64, n int) (float64, error) {
 		}
 		acc = acc * acc
 	}
-	if math.IsInf(acc, n) {
+	if math.IsInf(acc, int(n)) {
 		return 0, RxException(9, "Overflow")
 	}
 	if neg {
@@ -299,18 +296,18 @@ func Float64Pow(x float64, n int) (float64, error) {
 	return acc, nil
 }
 
-func Float32Pow(x float64, n int) (float32, error) {
+func Float32Pow(x float64, n int32) (float32, error) {
 	value, err := Float64Pow(x, n)
 	if err != nil {
 		return 0, err
 	}
-	if math.IsInf(value, n) {
+	if math.IsInf(value, int(n)) {
 		return 0, RxException(9, "Overflow")
 	}
 	return float32(value), nil
 }
 
-func ToRxFromFloat64(num float64, digits int) (*Rexx, error) {
+func ToRxFromFloat64(num float64, digits int32) (*Rexx, error) {
 	neg := false
 	m := int64(math.Float64bits(num))
 	if m >= 0 {
@@ -320,7 +317,7 @@ func ToRxFromFloat64(num float64, digits int) (*Rexx, error) {
 		m = m & 9223372036854775807
 	}
 	if m == 0 {
-		return RxFromInt(0), nil
+		return RxFromInt32(0), nil
 	}
 	fmraw := m % 4503599627370496
 	fmant := fmraw | 4503599627370496
@@ -364,10 +361,10 @@ func ToRxFromFloat64(num float64, digits int) (*Rexx, error) {
 	return value, nil
 }
 
-func Trunc(num *Rexx, after int) ([]rune, error) {
+func Trunc(num *Rexx, after int32) ([]rune, error) {
 	var set *RexxSet
-	if len(num.mant) > DefaultDigits {
-		set = RxSetWithDigit(len(num.mant))
+	if int32(len(num.mant)) > DefaultDigits {
+		set = RxSetWithDigit(int32(len(num.mant)))
 	} else {
 		set = nil
 	}
@@ -375,7 +372,7 @@ func Trunc(num *Rexx, after int) ([]rune, error) {
 	if err != nil {
 		return nil, err
 	}
-	need := len(num.mant) + after
+	need := int32(len(num.mant)) + after
 	if num.exp > 0 {
 		need = need + num.exp
 	}
@@ -394,7 +391,7 @@ func Trunc(num *Rexx, after int) ([]rune, error) {
 		num.exp = after
 	}
 	if num.exp > 0 {
-		newmant := make([]rune, len(num.mant)+num.exp)
+		newmant := make([]rune, int32(len(num.mant))+num.exp)
 		copy(newmant, num.mant)
 		_8 := len(newmant) - 1
 		i := len(num.mant)
@@ -408,11 +405,11 @@ func Trunc(num *Rexx, after int) ([]rune, error) {
 	return num.layoutnum(), nil
 }
 
-func Format(num *Rexx, before int, after int, explaces int, exdigits int, exform rune) ([]rune, error) {
+func Format(num *Rexx, before int32, after int32, explaces int32, exdigits int32, exform rune) ([]rune, error) {
 	var set *RexxSet
-	thisafter := 0
-	if len(num.mant) > DefaultDigits {
-		set = RxSetWithDigit(len(num.mant))
+	var thisafter int32 = 0
+	if int32(len(num.mant)) > DefaultDigits {
+		set = RxSetWithDigit(int32(len(num.mant)))
 	} else {
 		set = nil
 	}
@@ -427,7 +424,7 @@ func Format(num *Rexx, before int, after int, explaces int, exdigits int, exform
 		} else if num.ind == iszero {
 			exform = 'P'
 		} else {
-			mag := num.exp + len(num.mant)
+			mag := num.exp + int32(len(num.mant))
 			if mag > exdigits {
 			} else if mag < -5 {
 			} else {
@@ -442,29 +439,29 @@ func Format(num *Rexx, before int, after int, explaces int, exdigits int, exform
 	setafter:
 		for {
 			if exform == 'P' {
-				thisafter = int(-num.exp)
+				thisafter = int32(-num.exp)
 			} else if exform == 'S' {
-				thisafter = len(num.mant) - 1
+				thisafter = int32(len(num.mant)) - 1
 			} else {
-				lead := (num.exp + len(num.mant) - 1) % 3
+				lead := (num.exp + int32(len(num.mant)) - 1) % 3
 				if lead < 0 {
 					lead = 3 + lead
 				}
 				lead++
-				if lead >= len(num.mant) {
+				if lead >= int32(len(num.mant)) {
 					thisafter = 0
 				} else {
-					thisafter = len(num.mant) - lead
+					thisafter = int32(len(num.mant)) - lead
 				}
 			}
 			if thisafter == after {
 				break setafter
 			}
 			if thisafter < after {
-				newmant := make([]rune, (len(num.mant)+after)-thisafter)
+				newmant := make([]rune, (int32(len(num.mant))+after)-thisafter)
 				copy(newmant, num.mant)
-				_9 := len(newmant) - 1
-				i := len(num.mant)
+				_9 := int32(len(newmant)) - 1
+				i := int32(len(num.mant))
 				for ; i <= _9; i++ {
 					newmant[i] = '0'
 				}
@@ -475,7 +472,7 @@ func Format(num *Rexx, before int, after int, explaces int, exdigits int, exform
 				}
 				break setafter
 			}
-			need := len(num.mant) - (thisafter - after)
+			need := int32(len(num.mant)) - (thisafter - after)
 			if need < 0 {
 				num.mant = zero.mant
 				num.ind = zero.ind
@@ -504,7 +501,7 @@ func Format(num *Rexx, before int, after int, explaces int, exdigits int, exform
 			if !bump {
 				break setafter
 			}
-			var incr = RxFromInt(1)
+			var incr = RxFromInt32(1)
 			incr.ind = num.ind
 			incr.exp = num.exp
 			rx02, err := num.OpAdd(set, incr)
@@ -532,20 +529,20 @@ func Format(num *Rexx, before int, after int, explaces int, exdigits int, exform
 		if p > 0 {
 			p--
 		} else if exdigits == -1 {
-			p = len(a)
+			p = int32(len(a))
 		} else {
 			p = Pos(ToRunesFromRune('E'), a, 1)
 			if p > 0 {
 				p--
 			} else {
-				p = len(a)
+				p = int32(len(a))
 			}
 		}
 		if p > before {
-			return nil, RxException(1, strconv.Itoa(before))
+			return nil, RxException(1, strconv.Itoa(int(before)))
 		}
 		if p < before {
-			rx03, err := Rx(a, true).Right(RxFromInt(len(a)+before-p), ToRxFromRunes([]rune(" ")))
+			rx03, err := Rx(a, true).Right(RxFromInt32(int32(len(a))+before-p), ToRxFromRunes([]rune(" ")))
 			if err != nil {
 				return nil, err
 			}
@@ -556,19 +553,19 @@ func Format(num *Rexx, before int, after int, explaces int, exdigits int, exform
 		epos := Pos(ToRunesFromRune('E'), a, 1)
 		if epos == 0 {
 			rx04 := Rx(a, true)
-			rx05, err := rx04.Left(RxFromInt(len(a)+explaces+2), ToRxFromRunes([]rune(" ")))
+			rx05, err := rx04.Left(RxFromInt32(int32(len(a))+explaces+2), ToRxFromRunes([]rune(" ")))
 			if err != nil {
 				return nil, err
 			}
 			a = rx05.ToRunes()
 		} else {
-			places := len(a) - epos - 1
+			places := int32(len(a)) - epos - 1
 			if places > explaces {
-				return nil, RxException(1, strconv.Itoa(explaces))
+				return nil, RxException(1, strconv.Itoa(int(explaces)))
 			}
 			if places < explaces {
 				rx06 := Rx(a, true)
-				rx07, err := rx06.Insert(ToRxFromRunes([]rune("")), RxFromInt(epos+1), RxFromInt(explaces-places), RxFromRune('0'))
+				rx07, err := rx06.Insert(ToRxFromRunes([]rune("")), RxFromInt32(epos+1), RxFromInt32(explaces-places), RxFromRune('0'))
 				if err != nil {
 					return nil, err
 				}
@@ -578,20 +575,21 @@ func Format(num *Rexx, before int, after int, explaces int, exdigits int, exform
 	}
 	return a, nil
 }
-func hexint(c rune) int {
+
+func hexint(c rune) int32 {
 	if c >= '0' {
 		if c <= '9' {
-			return int(c) - int('0')
+			return int32(c) - int32('0')
 		}
 	}
 	if c >= 'A' {
 		if c <= 'F' {
-			return int(c) - int('A') + 10
+			return int32(c) - int32('A') + 10
 		}
 	}
 	if c >= 'a' {
 		if c <= 'f' {
-			return int(c) - int('a') + 10
+			return int32(c) - int32('a') + 10
 		}
 	}
 	return -1

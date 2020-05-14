@@ -11,4 +11,5 @@ cd agorexx/
 
 go build libcalls.go
 
-Note: Not entirely 32-bit safe yet.
+Note: Should be 32-bit safe now.
+Needs: Docs and more Tests

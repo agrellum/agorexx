@@ -11,8 +11,8 @@ const VARABS = '\007'
 const VARPLUS = '\010'
 const VARMINUS = '\011'
 const VARLIST = '\012'
-const MinCol = 0
-const MaxCol = 999999999
+const MinCol int32 = 0
+const MaxCol int32 = 999999999
 
 type RexxParse struct {
 }
@@ -24,16 +24,16 @@ func RxParse() (rcvr *RexxParse) {
 
 func Parse(obj *Rexx, list []rune, vars []*Rexx) error {
 	var needle []rune
-	slen := 0
-	i := 0
-	vbeg := 0
-	vend := 0
-	leng := 0
+	var slen int32 = 0
+	var i int32 = 0
+	var vbeg int32 = 0
+	var vend int32 = 0
+	var leng int32 = 0
 	chars := obj.ToRunes()
-	onext := 0
-	omatch := 0
-	oend := 0
-	ip := 0
+	var onext int32 = 0
+	var omatch int32 = 0
+	var oend int32 = 0
+	var ip int32 = 0
 	ins := list[0]
 instruction:
 	for {
@@ -45,10 +45,10 @@ instruction:
 			case VAR:
 				if ins == VAR {
 					needle = vars[int(list[ip+1])].ToRunes()
-					slen = len(needle)
+					slen = int32(len(needle))
 					ip = ip + 2
 				} else {
-					slen = int(list[ip+1])
+					slen = int32(list[ip+1])
 					needle = make([]rune, slen)
 					ip = ip + 2
 					_1 := slen - 1
@@ -60,7 +60,7 @@ instruction:
 				}
 				omatch = Pos(needle, chars, obeg+1) - 1
 				if omatch < 0 {
-					oend = len(chars)
+					oend = int32(len(chars))
 					omatch = oend
 					onext = oend
 				} else {
@@ -70,7 +70,7 @@ instruction:
 			case EOP:
 				break instruction
 			case EOS:
-				oend = len(chars)
+				oend = int32(len(chars))
 				omatch = oend
 				onext = oend
 				ip++
@@ -79,7 +79,7 @@ instruction:
 			case VARPLUS:
 				fallthrough
 			case VARMINUS:
-				nextcol, err := vars[int(list[ip+1])].ToInt()
+				nextcol, err := vars[int(list[ip+1])].ToInt32()
 				if err != nil {
 					return err
 				}
@@ -104,16 +104,16 @@ instruction:
 				oend = omatch
 				onext = oend
 				if oend <= obeg {
-					oend = len(chars)
+					oend = int32(len(chars))
 				}
 			default:
-				nextcol := 0
+				var nextcol int32 = 0
 				ip++
-				_2 := int(list[ip])
+				_2 := int32(list[ip])
 				i = 1
 				for ; i <= _2; i++ {
 					ip++
-					nextcol = nextcol*256 + int(list[ip])
+					nextcol = nextcol*256 + int32(list[ip])
 				}
 				ip++
 				if ins == ABS {
@@ -133,27 +133,27 @@ instruction:
 				oend = omatch
 				onext = oend
 				if oend <= obeg {
-					oend = len(chars)
+					oend = int32(len(chars))
 				}
 			}
 			if !(false) {
 				break
 			}
 		}
-		if obeg > len(chars) {
-			obeg = len(chars)
+		if obeg > int32(len(chars)) {
+			obeg = int32(len(chars))
 		}
-		if oend > len(chars) {
-			oend = len(chars)
+		if oend > int32(len(chars)) {
+			oend = int32(len(chars))
 		}
 		ins = list[ip]
 		if ins != VARLIST {
 			continue instruction
 		}
-		varcount := int(list[ip+1])
+		varcount := int32(list[ip+1])
 		ip = ip + 2
 		_3 := varcount
-		v := 1
+		var v int32 = 1
 		for ; v <= _3; v++ {
 			if v == varcount {
 				vbeg = obeg

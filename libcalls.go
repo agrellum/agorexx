@@ -1,43 +1,40 @@
 package main
 
 import "fmt"
-import "strings"
-import "strconv"
 import "math"
-
-//import "runtime"
+import "reflect"
+import "strconv"
+import "strings"
+import "unicode"
 
 import "agorexx/lang"
-
-import "reflect"
-import "unicode"
 
 var rexx_set = lang.RxSet()
 var lower_a = lang.RxFromRune('a')
 var upper_a = lang.RxFromRune('A')
-var value_a = lang.RxFromInt(65)
+var value_a = lang.RxFromInt32(65)
 var emptyrex = lang.RxFromEmpty()
 var emptystr = lang.RxFromString("")
 var blank = lang.RxFromString(" ")
-var zero = lang.RxFromInt(0)
-var one = lang.RxFromInt(1)
+var zero = lang.RxFromInt32(0)
+var one = lang.RxFromInt32(1)
 var one_center = lang.RxFromString(" 1 ")
 var one_leading_zeros = lang.RxFromString("000001")
 var one_left = lang.RxFromString("1 ")
-var one_negative = lang.RxFromInt(-1)
-var one_over_max = lang.RxFromInt(lang.MaxArg + 1)
+var one_negative = lang.RxFromInt32(-1)
+var one_over_max = lang.RxFromInt32(lang.MaxArg + 1)
 var one_point_zero = lang.RxFromString("1.0")
 var one_right = lang.RxFromString(" 1")
-var two = lang.RxFromInt(2)
-var three = lang.RxFromInt(3)
-var four = lang.RxFromInt(4)
-var five = lang.RxFromInt(5)
-var six = lang.RxFromInt(6)
-var seven = lang.RxFromInt(7)
-var eight = lang.RxFromInt(8)
-var a = lang.RxFromInt(50)
-var b = lang.RxFromInt(17)
-var c = lang.RxFromInt(-100)
+var two = lang.RxFromInt32(2)
+var three = lang.RxFromInt32(3)
+var four = lang.RxFromInt32(4)
+var five = lang.RxFromInt32(5)
+var six = lang.RxFromInt32(6)
+var seven = lang.RxFromInt32(7)
+var eight = lang.RxFromInt32(8)
+var a = lang.RxFromInt32(50)
+var b = lang.RxFromInt32(17)
+var c = lang.RxFromInt32(-100)
 var e = lang.RxFromString("001001")
 var h = lang.RxFromString("0.0000001")
 var i = lang.RxFromString("100")
@@ -134,11 +131,11 @@ func main() {
 	if rxint8 != 0 {
 		lang.SayString("BUG1024")
 	}
-	rxint8, err = lang.RxFromInt(127).ToInt8()
+	rxint8, err = lang.RxFromInt32(127).ToInt8()
 	if rxint8 != 127 {
 		lang.SayString("BUG1025")
 	}
-	rxint8, err = lang.RxFromInt(-128).ToInt8()
+	rxint8, err = lang.RxFromInt32(-128).ToInt8()
 	if rxint8 != -128 {
 		lang.SayString("BUG1026")
 	}
@@ -170,6 +167,7 @@ func main() {
 	if rxint8 != 0 {
 		lang.SayString("BUG1033")
 	}
+
 	rxint8, err = lang.RxFromFloat32(127.0).ToInt8()
 	if rxint8 != 127 {
 		lang.SayString("BUG1034")
@@ -194,23 +192,23 @@ func main() {
 	if rxint8 != 0 {
 		lang.SayString("BUG1039")
 	}
-	// FIXME NULL vs EMPTY
+	// FIXME NULL vs EMPTY?
 	if emptyrex.ToString() != "" {
 		lang.SayString("BUG1040")
 	}
-	rxint, err := lang.RxFromInt(2147483647).ToInt()
+	rxint, err := lang.RxFromInt32(2147483647).ToInt32()
 	if rxint != 2147483647 {
 		lang.SayString("BUG1041")
 	}
-	rxint, err = lang.RxFromEmpty().ToInt()
+	rxint, err = lang.RxFromEmpty().ToInt32()
 	if rxint != 0 {
 		lang.SayString("BUG5041")
 	}
-	rxint, err = lang.RxFromInt(-2147483648).ToInt()
+	rxint, err = lang.RxFromInt32(-2147483648).ToInt32()
 	if rxint != -2147483648 {
 		lang.SayString("BUG1042")
 	}
-	rxint, err = zero.ToInt()
+	rxint, err = zero.ToInt32()
 	if rxint != 0 {
 		lang.SayString("BUG1043")
 	}
@@ -277,7 +275,7 @@ func main() {
 		lang.SayString("BUG1061")
 		fmt.Println(opadd)
 	}
-	opadd, err = lang.RxFromInt(120000000).OpAdd(nil, lang.RxFromString("-999999999999"))
+	opadd, err = lang.RxFromInt32(120000000).OpAdd(nil, lang.RxFromString("-999999999999"))
 	if !(opadd.ToString() == "-9.99880000E+11") {
 		lang.SayString("BUG4060")
 	}
@@ -337,8 +335,8 @@ func main() {
 
 	opdiv, err = one.OpDiv(rexx_set, lower_a)
 
-	//opdiv, err = lang.RxFromString("-34359738368").OpDiv(nil, lang.RxFromInt8(int8(-128)))
-	//opdiv, err = lower_a.OpDiv(rexx_set, two)
+	opdiv, err = lang.RxFromString("-34359738368").OpDiv(nil, lang.RxFromInt8(int8(-128)))
+	opdiv, err = lower_a.OpDiv(rexx_set, two)
 
 	opdivi, err := three.OpDivI(rexx_set, two)
 	if !(opdivi.ToString() == "1") {
@@ -683,10 +681,12 @@ func main() {
 	if !(opplus.ToString() == "0") {
 		lang.SayString("BUG1151")
 	}
+
 	oppow, err := a.OpPow(rexx_set, b)
 	if !(oppow.ToString() == "7.62939453E+28") {
 		lang.SayString("BUG1152")
 	}
+
 	oppow, err = a.OpPow(rexx_set, zero)
 	if !(oppow.ToString() == "1") {
 		lang.SayString("BUG1153")
@@ -699,7 +699,6 @@ func main() {
 	if err == nil {
 		lang.SayString("BUG3153")
 	}
-	//~ 1211 1659
 	oppow, err = lang.RxFromString("50.000000").OpPow(rexx_set, lang.RxFromString("17.000"))
 	if err != nil {
 		lang.SayString("BUG5153")
@@ -845,15 +844,15 @@ func main() {
 	if !(b2d.ToString() == "-127") {
 		lang.SayString("BUG1187")
 	}
-	b2d, err = lang.RxFromString("10000001").B2d(lang.RxFromInt(16))
+	b2d, err = lang.RxFromString("10000001").B2d(lang.RxFromInt32(16))
 	if !(b2d.ToString() == "129") {
 		lang.SayString("BUG1188")
 	}
-	b2d, err = lang.RxFromString("1111000010000001").B2d(lang.RxFromInt(16))
+	b2d, err = lang.RxFromString("1111000010000001").B2d(lang.RxFromInt32(16))
 	if !(b2d.ToString() == "-3967") {
 		lang.SayString("BUG1189")
 	}
-	b2d, err = lang.RxFromString("1111000010000001").B2d(lang.RxFromInt(12))
+	b2d, err = lang.RxFromString("1111000010000001").B2d(lang.RxFromInt32(12))
 	if !(b2d.ToString() == "129") {
 		lang.SayString("BUG1190")
 	}
@@ -877,7 +876,7 @@ func main() {
 	if err == nil {
 		lang.SayString("BUG1195")
 	}
-	b2d, err = lang.RxFromString("123").B2d(lang.RxFromInt(128))
+	b2d, err = lang.RxFromString("123").B2d(lang.RxFromInt32(128))
 	if err == nil {
 		lang.SayString("BUG1196")
 	}
@@ -1256,11 +1255,11 @@ func main() {
 	if !(d2b.ToString() == "10000001") {
 		lang.SayString("BUG1277")
 	}
-	d2b, err = lang.RxFromString("127").D2b(lang.RxFromInt(12))
+	d2b, err = lang.RxFromString("127").D2b(lang.RxFromInt32(12))
 	if !(d2b.ToString() == "000001111111") {
 		lang.SayString("BUG1278")
 	}
-	d2b, err = lang.RxFromString("129").D2b(lang.RxFromInt(16))
+	d2b, err = lang.RxFromString("129").D2b(lang.RxFromInt32(16))
 	if !(d2b.ToString() == "0000000010000001") {
 		lang.SayString("BUG1279")
 	}
@@ -1272,7 +1271,7 @@ func main() {
 	if !(d2b.ToString() == "10000001") {
 		lang.SayString("BUG1281")
 	}
-	d2b, err = lang.RxFromString("-127").D2b(lang.RxFromInt(16))
+	d2b, err = lang.RxFromString("-127").D2b(lang.RxFromInt32(16))
 	if !(d2b.ToString() == "1111111110000001") {
 		lang.SayString("BUG1282")
 	}
@@ -1345,7 +1344,7 @@ func main() {
 	if !(d2x.ToString() == "FF81") {
 		lang.SayString("BUG1299")
 	}
-	d2x, err = lang.RxFromInt(50928).D2x(one_negative)
+	d2x, err = lang.RxFromInt32(50928).D2x(one_negative)
 	if !(d2x.ToString() == "C6F0") {
 		lang.SayString("BUG1299")
 	}
@@ -1414,7 +1413,6 @@ func main() {
 	if !(datatype.ToString() == "0") {
 		lang.SayString("BUG1313")
 	}
-
 	// tests for golang identifiers using datatype
 	datatype, err = lang.RxFromString("@_is_start").DataType(lang.RxFromRune('S'))
 	if !(datatype.ToString() == "0") {
@@ -1448,7 +1446,7 @@ func main() {
 	if err == nil {
 		lang.SayString("BUG1321")
 	}
-	//FIXME
+	//FIXME?
 	datatype, err = lang.RxFromString(".........").DataType(lang.RxFromRune('A'))
 	if err != nil {
 		lang.SayString("BUG1322")
@@ -1561,7 +1559,7 @@ func main() {
 	vowel.GetNode(lang.RxFromRune('b')).Leaf = one
 	// remove b using nil
 	vowel.GetNode(lang.RxFromRune('b')).Leaf = nil
-	vowel.GetNode(lang.RxFromRune('d')).Leaf = lang.RxFromInt(01)
+	vowel.GetNode(lang.RxFromRune('d')).Leaf = lang.RxFromInt32(01)
 	if !(vowel.Exists(lang.RxFromRune('a')).ToString() == "1") {
 		lang.SayString("BUG1348")
 	}
@@ -1571,21 +1569,22 @@ func main() {
 	if !(vowel.Exists(lang.RxFromRune('c')).ToString() == "0") {
 		lang.SayString("BUG1350")
 	}
-	vowel.Put(lang.RxFromString("TESTPUT"), lang.RxFromInt(1000))
+	vowel.Put(lang.RxFromString("TESTPUT"), lang.RxFromInt32(1000))
 	if !vowel.ContainsKey(lang.RxFromString("TESTPUT")) {
 		lang.SayString("BUG1351")
 	}
-	if !vowel.ContainsValue(lang.RxFromInt(1000)) {
+	if !vowel.ContainsValue(lang.RxFromInt32(1000)) {
 		lang.SayString("BUG1352")
 	}
-	if lang.RxFromEmpty().ContainsValue(lang.RxFromInt(1)) {
+	if lang.RxFromEmpty().ContainsValue(lang.RxFromInt32(1)) {
 		lang.SayString("BUG4352")
 	}
 	vowel.Remove(lang.RxFromRune('d'))
-	//1863
+
 	vowel.Remove(nil)
-	//1865
+
 	vowel.PutAll(nil)
+
 	if vowel.ContainsKey(lang.RxFromRune('d')) {
 		lang.SayString("BUG1353")
 	}
@@ -1762,11 +1761,11 @@ func main() {
 	if err != nil {
 		lang.SayString("BUG1392")
 	}
-	start, err := lang.RxFromString("abc def ghi").Length().ToInt()
+	start, err := lang.RxFromString("abc def ghi").Length().ToInt32()
 	if start == 0 {
 		start = 1
 	}
-	lastpos, err := lang.RxFromString("abc def ghi").LastPos(lang.RxFromRune(' '), lang.RxFromInt(start))
+	lastpos, err := lang.RxFromString("abc def ghi").LastPos(lang.RxFromRune(' '), lang.RxFromInt32(start))
 	if !(lastpos.ToString() == "8") {
 		lang.SayString("BUG1393")
 	}
@@ -1774,35 +1773,35 @@ func main() {
 	if !(lastpos.ToString() == "4") {
 		lang.SayString("BUG1394")
 	}
-	start, err = lang.RxFromString("abcdefghi").Length().ToInt()
+	start, err = lang.RxFromString("abcdefghi").Length().ToInt32()
 	if start == 0 {
 		start = 1
 	}
-	lastpos, err = lang.RxFromString("abcdefghi").LastPos(lang.RxFromRune(' '), lang.RxFromInt(start))
+	lastpos, err = lang.RxFromString("abcdefghi").LastPos(lang.RxFromRune(' '), lang.RxFromInt32(start))
 	if !(lastpos.ToString() == "0") {
 		lang.SayString("BUG1395")
 	}
-	start, err = lang.RxFromString("abcdefghi").Length().ToInt()
+	start, err = lang.RxFromString("abcdefghi").Length().ToInt32()
 	if start == 0 {
 		start = 1
 	}
-	lastpos, err = lang.RxFromString("abcdefghi").LastPos(lang.RxFromString("cd"), lang.RxFromInt(start))
+	lastpos, err = lang.RxFromString("abcdefghi").LastPos(lang.RxFromString("cd"), lang.RxFromInt32(start))
 	if !(lastpos.ToString() == "3") {
 		lang.SayString("BUG1396")
 	}
-	start, err = emptystr.Length().ToInt()
+	start, err = emptystr.Length().ToInt32()
 	if start == 0 {
 		start = 1
 	}
-	lastpos, err = emptystr.LastPos(lang.RxFromRune('?'), lang.RxFromInt(start))
+	lastpos, err = emptystr.LastPos(lang.RxFromRune('?'), lang.RxFromInt32(start))
 	if !(lastpos.ToString() == "0") {
 		lang.SayString("BUG1397")
 	}
-	start, err = lang.RxFromString("abcdefghi").Length().ToInt()
+	start, err = lang.RxFromString("abcdefghi").Length().ToInt32()
 	if start == 0 {
 		start = 1
 	}
-	lastpos, err = lang.RxFromString("abcdefghi").LastPos(emptystr, lang.RxFromInt(start))
+	lastpos, err = lang.RxFromString("abcdefghi").LastPos(emptystr, lang.RxFromInt32(start))
 	if !(lastpos.ToString() == "0") {
 		lang.SayString("BUG1398")
 	}
@@ -2224,12 +2223,13 @@ func main() {
 	if err != nil {
 		lang.SayString("BUG1502")
 	}
-	numone := 2
+	// FIX INT 32?
+	var numone int32 = 2
 	this := lang.RxFromString("abc")
-	numtwo, err := this.Length().ToInt()
-	rx01 := lang.RxFromInt(numtwo + 1 - numone)
+	numtwo, err := this.Length().ToInt32()
+	rx01 := lang.RxFromInt32(numtwo + 1 - numone)
 	rx02, err := rx01.Max(lang.RxFromInt8(int8(0)))
-	substr, err := this.Substr(lang.RxFromInt(numone), rx02, blank)
+	substr, err := this.Substr(lang.RxFromInt32(numone), rx02, blank)
 	if !(substr.ToString() == "bc") {
 		lang.SayString("BUG1503")
 	}
@@ -2361,7 +2361,7 @@ func main() {
 	if err != nil {
 		lang.SayString("BUG1535")
 	}
-	trunc, err = lang.RxFromString("A.3").Trunc(lang.RxFromInt(-11))
+	trunc, err = lang.RxFromString("A.3").Trunc(lang.RxFromInt32(-11))
 	if err == nil {
 		lang.SayString("BUG1536")
 	}
@@ -2654,7 +2654,7 @@ func main() {
 	if err != nil {
 		lang.SayString("BUG1608")
 	}
-	x2d, err = emptystr.X2d(lang.RxFromInt(lang.MaxArg + 1))
+	x2d, err = emptystr.X2d(lang.RxFromInt32(lang.MaxArg + 1))
 	if err == nil {
 		lang.SayString("BUG1609")
 	}
@@ -2729,7 +2729,7 @@ func main() {
 	if !(lang.ToString(emptyrex) == "") {
 		lang.SayString("BUG1626")
 	}
-	rx0I8, err := lang.RxFromInt(123456).ToInt8()
+	rx0I8, err := lang.RxFromInt32(123456).ToInt8()
 	if err == nil {
 		fmt.Println(rx0I8)
 		lang.SayString("BUG8075")
@@ -2738,7 +2738,7 @@ func main() {
 	if err == nil {
 		lang.SayString("BUG8076")
 	}
-	rx0I6, err := lang.RxFromInt(123456).ToInt16()
+	rx0I6, err := lang.RxFromInt32(123456).ToInt16()
 	if err == nil {
 		fmt.Println(rx0I6)
 		lang.SayString("BUG8077")
@@ -2748,27 +2748,29 @@ func main() {
 		fmt.Println(rx0I6)
 		lang.SayString("BUG8078")
 	}
-	rx0I, err := lang.RxFromString("123.456").ToInt()
+	rx0I, err := lang.RxFromString("123.456").ToInt32()
 	if err == nil {
 		fmt.Println(rx0I)
 		lang.SayString("BUG8079")
 	}
-	rx0I, err = lang.RxFromFloat32(-1.54e+20).ToInt()
+
+	rx0I, err = lang.RxFromFloat32(-1.54e+20).ToInt32()
 	if err == nil {
 		fmt.Println(rx0I)
 		lang.SayString("BUG8080")
 	}
-	rx0I, err = lang.RxFromString("-.1").ToInt()
+
+	rx0I, err = lang.RxFromString("-.1").ToInt32()
 	if err == nil {
 		fmt.Println(rx0I)
 		lang.SayString("BUG8081")
 	}
-	rx0I, err = lang.RxFromString("0-2").ToInt()
+	rx0I, err = lang.RxFromString("0-2").ToInt32()
 	if err == nil {
 		fmt.Println(rx0I)
 		lang.SayString("BUG8082")
 	}
-	rx0I64, err := lang.RxFromInt(123456).ToInt64()
+	rx0I64, err := lang.RxFromInt32(123456).ToInt64()
 	if err != nil {
 		fmt.Println(rx0I64)
 		lang.SayString("BUG8083")
@@ -2792,26 +2794,31 @@ func main() {
 		fmt.Println(rx0I64)
 		lang.SayString("BUG8086")
 	}
+
 	rx0I64, err = lang.RxFromFloat32(-0.1234567890).ToInt64()
 	if err == nil {
 		fmt.Println(rx0I64)
 		lang.SayString("BUG8087")
 	}
+
 	rx0I64, err = lang.RxFromFloat64(9.1e+40).ToInt64()
 	if err == nil {
 		fmt.Println(rx0I64)
 		lang.SayString("BUG8088")
 	}
+
 	rx0I64, err = lang.RxFromFloat32(-0.1234567890).ToInt64()
 	if err == nil {
 		fmt.Println(rx0I64)
 		lang.SayString("BUG8089")
 	}
+
 	rx0I32, err := lang.RxFromFloat32(-.1).ToFloat32()
 	if err == nil {
 		fmt.Println(rx0I32)
 		lang.SayString("BUG8090")
 	}
+
 	rx0I32, err = lang.RxFromRune(' ').ToFloat32()
 	if err == nil {
 		fmt.Println(rx0I32)
@@ -2823,21 +2830,23 @@ func main() {
 	if !(lang.Rx([]rune("۱۱.۱۱"), true).ToString() != "TEST") {
 		lang.SayString("BUG1628")
 	}
-	xi, err := lang.RxFromString("000001001101").ToInt()
+	xi, err := lang.RxFromString("000001001101").ToInt32()
 	if !(xi != -22) {
 		lang.SayString("BUG1629")
 	}
+
 	tt, err := lang.Float32Pow(10.753567, 6)
-	sf, err := lang.Float64Pow(10.753567, 6)
 	ftt := lang.RxFromFloat32(tt)
-	fsf := lang.RxFromFloat64(sf)
-	// This is with Rexx.go set to 40
-	if !(ftt.ToString() == "1546376.625") {
-		lang.SayString("BUG1630")
-	}
-	if !(fsf.ToString() == "1546376.60942058288492262363433837890625") {
+	if !(ftt.ToString() == "1546377") {
 		lang.SayString("BUG1631")
 	}
+
+	sf, err := lang.Float64Pow(10.753567, 6)
+	fsf := lang.RxFromFloat64(sf)
+	if !(fsf.ToString() == "1546376.609420583") {
+		lang.SayString("BUG1630")
+	}
+
 	the_char_array := lang.ToRunesFromRune('B')
 	if !(the_char_array[0] == 'B') {
 		lang.SayString("BUG1632")
@@ -2847,40 +2856,43 @@ func main() {
 	if !(backtorune == 'B') {
 		lang.SayString("BUG1633")
 	}
+
 	inFloat64 := lang.RxFromFloat64(math.MaxFloat64)
-	outFloat64, err := inFloat64.ToFloat64()
-	if err != nil {
-		fmt.Println(err)
+	// MATCHES NetRexx digits [17]
+	if inFloat64.ToString() != "1.797693134862316E+308" {
 		lang.SayString("BUG8091")
 	}
+
+	// SHOULD OVERFLOW inFloat64 rounded up
+	outFloat64, err := inFloat64.ToFloat64()
+	if err == nil {
+		lang.SayString("BUG8091A")
+	}
+
+	// AVOID rounding math.MaxFloat64 as String
+	outFloat64, err = lang.RxFromString("1.7976931348623157e+308").ToFloat64()
 	if !(outFloat64 == math.MaxFloat64) {
 		lang.SayString("BUG1634")
 	}
+
 	outFloat64, err = lang.RxFromRune(' ').ToFloat64()
 	if err == nil {
 		fmt.Println(err)
 		lang.SayString("BUG7091")
 	}
+
 	inFloat32 := lang.RxFromFloat32(math.MaxFloat32)
 	outFloat32, err := inFloat32.ToFloat32()
+	// Match NetRexx digits [7]
 	if err != nil {
-		fmt.Println(err)
 		lang.SayString("BUG8092")
+	} else {
+		if outFloat32 != 3.402823e+38 {
+			lang.SayString("BUG1635")
+		}
 	}
-	if !(outFloat32 == math.MaxFloat32) {
-		lang.SayString("BUG1635")
-	}
-	insmallFloat32 := lang.RxFromFloat32(math.SmallestNonzeroFloat32)
-	outsmallFloat32, err := insmallFloat32.ToFloat32()
-	if err != nil {
-		fmt.Println(err)
-		lang.SayString("BUG8093")
-	}
-	if !(outsmallFloat32 == math.SmallestNonzeroFloat32) {
-		fmt.Println(outsmallFloat32)
-		lang.SayString("BUG1636")
-	}
-	INMX16 := lang.RxFromInt(math.MaxInt16)
+
+	INMX16 := lang.RxFromInt32(math.MaxInt16)
 	OUTMX16, err := INMX16.ToInt16()
 	if err != nil {
 		fmt.Println(err)
@@ -2889,7 +2901,7 @@ func main() {
 	if !(OUTMX16 == math.MaxInt16) {
 		lang.SayString("BUG1637")
 	}
-	INMN16 := lang.RxFromInt(math.MinInt16)
+	INMN16 := lang.RxFromInt32(math.MinInt16)
 	OUTMN16, err := INMN16.ToInt16()
 	if err != nil {
 		fmt.Println(err)
@@ -2898,8 +2910,8 @@ func main() {
 	if !(OUTMN16 == math.MinInt16) {
 		lang.SayString("BUG1638")
 	}
-	INMX32 := lang.RxFromInt(math.MaxInt32)
-	OUTMX32, err := INMX32.ToInt()
+	INMX32 := lang.RxFromInt32(math.MaxInt32)
+	OUTMX32, err := INMX32.ToInt32()
 	if err != nil {
 		fmt.Println(err)
 		lang.SayString("BUG8096")
@@ -2907,8 +2919,8 @@ func main() {
 	if !(OUTMX32 == math.MaxInt32) {
 		lang.SayString("BUG1639")
 	}
-	INMN32 := lang.RxFromInt(math.MinInt32)
-	OUTMN32, err := INMN32.ToInt()
+	INMN32 := lang.RxFromInt32(math.MinInt32)
+	OUTMN32, err := INMN32.ToInt32()
 	if err != nil {
 		fmt.Println(err)
 		lang.SayString("BUG8097")
@@ -2916,6 +2928,7 @@ func main() {
 	if !(OUTMN32 == math.MinInt32) {
 		lang.SayString("BUG1640")
 	}
+
 	INMX64 := lang.RxFromInt64(math.MaxInt64)
 	OUTMX64, err := INMX64.ToInt64()
 	if err != nil {
@@ -2925,6 +2938,7 @@ func main() {
 	if !(OUTMX64 == math.MaxInt64) {
 		lang.SayString("BUG1641")
 	}
+
 	INMN64 := lang.RxFromInt64(math.MinInt64)
 	OUTMN64, err := INMN64.ToInt64()
 	if err != nil {
@@ -2934,6 +2948,7 @@ func main() {
 	if !(OUTMN64 == math.MinInt64) {
 		lang.SayString("BUG1642")
 	}
+
 	// throws exception if not a single character.
 	rexx_with_one_char := lang.RxFromString("Ꭳ")
 	rx03, err := rexx_with_one_char.ToRune()
@@ -2974,13 +2989,13 @@ func main() {
 	if !(len(lang.RxFromEmpty().Keys()) == 0) {
 		lang.SayString("BUG3333")
 	}
-	if lang.RxFromEmpty().TestNode(lang.RxFromInt(1)) {
+	if lang.RxFromEmpty().TestNode(lang.RxFromInt32(1)) {
 		lang.SayString("BUG3334")
 	}
 	if lang.RxFromString("A").Equals(lang.RxFromEmpty()) {
 		lang.SayString("BUG3335")
 	}
-	//1867
+
 	lang.RxFromString("A").Equals(nil)
 
 	frun := lang.RxFromRune('२')
@@ -2992,23 +3007,15 @@ func main() {
 	lang.Rx([]rune("½۱۱Ꭳ.۱۱२"), true)
 	lang.Rx([]rune("½.½"), true)
 
-	//WORKING lang.Rx([]rune("۱۱.۱۱"), true)
-	//lang.Rx([]rune("۱۱.۱۱E+۱"), true)
-	//lang.SayRexx(lang.Rx([]rune("۱۱۱۱.۱E-6"), true))
-	//fmt.Println(lang.Rx([]rune("۱۱۱۱.0E+6"), true).ToInt64())
+	lang.Rx([]rune("۱۱.۱۱"), true)
+	lang.Rx([]rune("۱۱.۱۱E+۱"), true)
+	lang.Rx([]rune("۱۱۱۱.۱E-6"), true)
+	lang.Rx([]rune("۱۱۱۱.0E+6"), true).ToInt64()
 
-	//trunc, err = lang.RxFromString("12.3").Trunc(lang.RxFromInt(lang.MaxArg))
-	//rxnan := lang.RxFromFloat64(nan)
-	//lang.SayRexx(rxnan)
 	nan, err := strconv.ParseFloat("NaN", 32)
 	inf, err := strconv.ParseFloat("inf", 32)
 	infp, err := strconv.ParseFloat("+inf", 32)
 	infn, err := strconv.ParseFloat("-inf", 32)
-
-	//~ flea, err := lang.ToRxFromFloat64(nan, 17)
-	//~ fleb, err := lang.ToRxFromFloat64(inf, 17)
-	//~ flec, err := lang.ToRxFromFloat64(infp, 17)
-	//~ fled, err := lang.ToRxFromFloat64(infn, 17)
 
 	flea := lang.RxFromFloat64(nan)
 	fleb := lang.RxFromFloat64(inf)
@@ -3020,11 +3027,6 @@ func main() {
 	fleg := lang.RxFromFloat32(float32(infp))
 	fleh := lang.RxFromFloat32(float32(infn))
 
-	//~ flei := float32(flee)
-	//~ flej := float32(flef)
-	//~ flek := float32(fleg)
-	//~ flel := float32(fleh)
-
 	flea.ToFloat64()
 	fleb.ToFloat64()
 	flec.ToFloat64()
@@ -3034,29 +3036,15 @@ func main() {
 	fleg.ToFloat32()
 	fleh.ToFloat32()
 
-	//~ lang.SayRexx(flea)
-	//~ lang.SayRexx(fleb)
-	//~ lang.SayRexx(flec)
-	//~ lang.SayRexx(fled)
+	lang.RxFromInt32(19).OpEqS(nil, lang.RxFromInt32(18))
 
-	//~ lang.SayRexx(flee)
-	//~ lang.SayRexx(flef)
-	//~ lang.SayRexx(fleg)
-	//~ lang.SayRexx(fleh)
+	lang.RxFromString("259.9").D2b(eight)
+	lang.RxFromString("259.9").D2x(two)
+	lang.RxFromString("15").D2b(lang.RxFromString("15"))
+	lang.RxFromString("64").D2x(one)
 
-	//~ orxnan, err := rxnan.ToFloat64()
-	//~ fmt.Println(err)
-	//~ fmt.Println(orxnan)
-
-	//lang.RxFromInt(19).OpEqS(nil, lang.RxFromInt(18))
-
-	//~ d2b, err = lang.RxFromString("259.9").D2b(eight)
-	//~ d2x, err = lang.RxFromString("259.9").D2x(two)
-	//~ d2b, err = lang.RxFromString("15").D2b(lang.RxFromString("15"))
-	//~ d2x, err = lang.RxFromString("64").D2x(one)
-
-	//~ d2b, err = lang.RxFromString("561").D2b(one)
-	//~ d2x, err = lang.RxFromString("261").D2x(one)
+	lang.RxFromString("561").D2b(one)
+	lang.RxFromString("261").D2x(one)
 
 	new_set.SetDigits(zero)
 	new_set.SetDigits(lower_a)
@@ -3115,43 +3103,10 @@ func main() {
 	lang.WordPos([]rune{65, 32, 32, 66, 32}, []rune{}, -3)
 
 	opadd, err = lang.RxFromString("0.4444444444").OpAdd(nil, lang.RxFromString("0.5555555550"))
-	//lang.SayRexx(opadd)
-
-	// bigcopy, err := one.Copies(lang.RxFromInt(66846720))
-	// if bigcopy == nil {
-	// 	lang.SayString("BOMB")
-	// }
-	//bigcopy.Right(one, zero)
-
-	//lang.PrintMemUsage()
-	//runtime.GC()
-
-	//one.Copies(lang.RxFromInt(99999999))
-	// 72000001
-	//999999999
-	//lang.PrintMemUsage()
 
 	lang.Format(lang.RxFromString(".2111"), 0, 2, 9, 9, 'S')
 
-	//lang.Float32Pow(10.753567, 0)
-	//lang.Float32Pow(10.753567, -1)
-
-	//~ 208
-	//fmt.Println(lang.Format(lang.RxFromString(".1"), lang.MinExp-1, lang.MinExp-1, lang.MinExp-1, -1, 'E'))
-
-	//lang.Format(lang.RxFromString("-0"), -10, lang.MinExp-1, 19, -10, 'E')
-	//-999999999
-	// 100000000
-
-	//-999999999
-
-	//lang.RxFromFloat64(-99.999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999E-300).OpPow(nil, x)
-
-	// INDEX OUT OF RANGE
-	//fmt.Println(lang.Space([]rune{64, 32, 32, 54}, -10000, 32))
-	// lang.Space([]rune{32, 65}, 1, 32)
-
-	// BULK TEST START
+	// TEST ALL RUNES
 
 	unigroup := [370]rune{
 		'\u0030', '\u0031', '\u0032', '\u0033', '\u0034', '\u0035', '\u0036', '\u0037', '\u0038', '\u0039',
@@ -3224,9 +3179,10 @@ func main() {
 	}
 
 	count := 0
+	var col int32 = 0
 	for row := 1; row <= 37; row++ {
-		for col := 0; col <= 9; col++ {
-			number, err := lang.RxFromRune(unigroup[count]).ToInt()
+		for col = 0; col <= 9; col++ {
+			number, err := lang.RxFromRune(unigroup[count]).ToInt32()
 			if err != nil {
 				fmt.Printf("err: row %d col %d\n", row, col)
 			} else {
@@ -3240,8 +3196,8 @@ func main() {
 
 	count = 0
 	for row := 1; row <= 24; row++ {
-		for col := 0; col <= 9; col++ {
-			number, err := lang.RxFromRune(hexgroup[count]).ToInt()
+		for col = 0; col <= 9; col++ {
+			number, err := lang.RxFromRune(hexgroup[count]).ToInt32()
 			if err != nil {
 				fmt.Printf("err: row %d col %d\n", row, col)
 			} else {
@@ -3253,171 +3209,126 @@ func main() {
 		}
 	}
 
-	//~ 1878
 	lang.RxIO()
 
+	// UNCOMMENT TO USE SEE KEYBOARD INPUT
 	// line := lang.Ask()
 	// lang.SayRexx(line)
 
 	// kb := lang.AskOne()
 	// lang.SayRexx(kb)
 
-	//~ 1883 1884
+	lang.SayString("you should see the lower case 'a' below")
 	lang.SayString("a")
-
-	//~ 1885
+	lang.SayString("another lower case 'a'")
 	lang.SayRexx(lower_a)
-
-	//~ 1886
+	lang.SayString("still another lower case 'a'")
 	lang.SayRune('a')
-
-	//~ 1887
+	lang.SayString("you should see zero below")
 	lang.SayInt64(0)
-
-	//~ 1888
+	lang.SayString("another zero")
 	lang.SayFloat32(0.0)
-
-	//~ 1889
+	lang.SayString("still another zero")
 	lang.SayFloat64(0.0)
-
-	//~ 1890
+	lang.SayString("you should 1 the value for Bool True")
 	lang.SayBool(true)
-
-	//~ 1892
+	lang.SayString("you should see a blank line below")
 	lang.Say(nil)
-
-	//~ 1894
+	lang.SayString("another blank line")
 	lang.Say(make([]rune, 0))
 
-	//~ 1895
 	vas := make([]rune, 1)
 	vas[0] = '\000'
+
+	lang.SayString("still another  blank line")
 	lang.Say(vas)
 
 	opminus, err = lower_a.OpMinus(rexx_set)
-	if err != nil {
+	if err == nil {
 		lang.SayString("BUG1132A")
 	}
 
-	//~ 1163
-	//fmt.Println(lang.RxFromString("1.797693134862315708145274237317043567981e+309").ToFloat64())
-	//fmt.Println(lang.RxFromString("-1.797693134862315708145274237317043567981e+309").ToFloat64())
 	lang.RxFromString("1.797693134862315708145274237317043567981e+309").ToFloat64()
 	lang.RxFromString("-1.797693134862315708145274237317043567981e+309").ToFloat64()
 
 	//~ 1167
-	lang.Format(lang.RxFromString("-0"), -10, 50, 19, -10, 'E')
+	//Internal error: Rexx: bad dig -10
+	_, err = lang.Format(lang.RxFromString("-0"), -10, 50, 19, -10, 'E')
+	if err != nil {
+		lang.SayString("7766")
+	} else {
+		lang.SayString("you should see internal error above")
+	}
 
-	//~ 1211 1659
 	opmult, err = lang.RxFromString("50.000000").OpPow(rexx_set, lang.RxFromString("17.000"))
 
-	//~ 1236 MEMORY drop MAX MINS
-	//b2d, err = lang.RxFromString("123").B2d(lang.RxFromInt(lang.MaxExp))
-
-	//~ 1628
 	rexsult, err := lang.RxFromString("10.23456785").OpSub(lang.RxSetWithDigit(9), lang.RxFromString("10.23456789"))
 	if (err == nil) && !(rexsult.ToString() == "0") {
 		lang.SayString("subx121")
 	}
 
-	//~ 1642
 	lang.RxFromString("9E+999999999").OpMult(lang.RxSetWithDigit(9), lang.RxFromString("+1.23456789012345E-0"))
 
-	//~ 1652
 	lang.RxFromString("100").OpPow(lang.RxSetWithDigit(16), lang.RxFromString("1E+9"))
 
-	//~ 1679
 	opdiv, err = lang.RxFromInt8(int8(-128)).OpDiv(nil, lang.RxFromString("-34359738368"))
 
-	//~ 1712 1802 1803
 	lang.RxFromString("-0.9E-999999999").OpDiv(nil, z)
 
-	//~ 1727
 	value_a.OpAdd(lang.RxSetWithDigitandForm(0, int8(0)), one_point_zero)
 
-	//~ 1737
 	opcc = emptyrex.OpCc(rexx_set, emptyrex)
 	// FIXME ADD IF TEST
 
-	//~ 1804 1805
 	big_set := lang.RxSet()
 	big_set.SetForm(lang.RxFromString("engineering"))
 	lang.RxFromString("-0.9E-999999999").OpDiv(big_set, z)
 
-	//~ 1951
 	new_set.SetDigits(lang.RxFromString("1.7976931348623157e-308"))
 
-	//~ 1983
 	lang.D2x(z, 1)
 
-	//~ 2007
 	x2c, err = lang.RxFromString("FFFFFFFFFFFFFFFFFFFFFFFF").X2c()
 
-	//~ 2014
 	lang.X2d(x, 1111111110)
 
-	//~ 2032 2035
 	lang.Float32Pow(-1.12345, lang.MaxArg)
 
-	//~ 2036
 	lang.Float32Pow(1.797693134862315708145274237317043567981e+308, 9)
 
-	//~ 2054
 	lang.Trunc(lang.RxFromString(".3E+25"), 10)
 
-	//~ 2064
-	//fmt.Println(lang.Format(lower_a, 1, 1, 1, 1, 'S'))
 	lang.Format(lower_a, 1, 1, 1, 1, 'S')
 
-	//~ 2080
-	//fmt.Println(lang.Format(one_point_zero, 0, 0, 0, 0, 'E'))
 	lang.Format(one_point_zero, 0, 0, 0, 0, 'E')
 
-	//~ 2084 MEMORY drop MAX MINS
-	//format, err = lang.RxFromString(".022E-999").Format(five, lang.RxFromInt(lang.MaxExp-1000), five, five, lang.RxFromRune('P'))
+	//~ MEMORY drop MAX MINS
+	//format, err = lang.RxFromString(".022E-999").Format(five, lang.RxFromInt32(lang.MaxExp-1000), five, five, lang.RxFromRune('P'))
 
-	//~ 2087 2088
-	//fmt.Println(lang.Format(lang.RxFromString(".1"), 0, 0, lang.MinExp+1, 0, 'E'))
 	lang.Format(lang.RxFromString(".1"), 0, 0, lang.MinExp+1, 0, 'E')
 
-	//~ 2090 2103
-	//fmt.Println(lang.Format(x, 10, 1, -100, 100, 'S'))
 	lang.Format(x, 10, 1, -100, 100, 'S')
 
-	//~ 2102
-	//fmt.Println(lang.Format(zero, 1, -1, 1, 1, 'c'))
 	lang.Format(zero, 1, -1, 1, 1, 'c')
 
-	//~ 2104
-	//fmt.Println(lang.Format(zero, 0, 1, 1, 1, 'b'))
 	lang.Format(zero, 0, 1, 1, 1, 'b')
 
-	//~ 2105
-	format, err = lang.RxFromString("2.73").Format(lang.RxFromInt(lang.MaxExp), five, nil, nil, nil)
+	format, err = lang.RxFromString("2.73").Format(lang.RxFromInt32(lang.MaxExp), five, nil, nil, nil)
 
-	//~ 2108
-	//fmt.Println(lang.Format(lang.RxFromString(".1"), 0, 0, lang.MaxExp+1, 0, 'E'))
 	lang.Format(lang.RxFromString(".1"), 0, 0, lang.MaxExp+1, 0, 'E')
 
-	//~ 2203
 	lang.Space([]rune{32, 65}, 1, 0)
 
-	//~ 2208
 	lang.SubWord([]rune{65}, 1, 0)
 
-	//~ 2247
 	lang.WordPos([]rune{65, 32, 32, 66, 32}, []rune{65, 32, 32, 66, 32}, 1)
 
-	//~ 2248
 	lang.WordPos([]rune{32, 27, 32, 27, 32, 27}, []rune{32, 27}, 1)
 
-	//~ 2249
 	lang.WordPos([]rune{32, 27, 32, 27, 32, 27}, []rune{32, 27, 32}, 1)
 
-	//~ 2251
 	lang.WordPos([]rune{65, 32, 32, 66, 32}, []rune{65, 32, 32, 66, 32}, 2)
 
-	//~ 1898
 	lang.RxParse()
 
 	obj := lang.RxFromString("jan,feb,mar,apr,may,jun")
@@ -3442,161 +3353,116 @@ func main() {
 
 	//lang.SayRexx(a.OpCc(nil, newline))
 
-	//~ 1908
 	vars = make([]*lang.Rexx, 5)
 	vars[1] = x
 	vars[3] = z
 	lang.Parse(lang.ToRxFromString("Flying pigs have wings"), []rune{7, 1, 10, 1, 0, 9, 3, 10, 1, 2, 1, 10, 1, 4, 0}, vars)
 
-	//~ 1909
 	vars = make([]*lang.Rexx, 5)
-	vars[1] = lang.RxFromInt(lang.MinCol - 1)
-	vars[3] = lang.RxFromInt(lang.MaxCol + 1)
+	vars[1] = lang.RxFromInt32(lang.MinCol - 1)
+	vars[3] = lang.RxFromInt32(lang.MaxCol + 1)
 	lang.Parse(lang.ToRxFromString("Flying pigs have wings"), []rune{7, 1, 10, 1, 0, 9, 3, 10, 1, 2, 1, 10, 1, 4, 0}, vars)
-	//lang.SayRexx(vars[0])
-	//lang.SayRexx(vars[1])
-	//lang.SayRexx(vars[2])
-	//lang.SayRexx(vars[3])
-	//lang.SayRexx(vars[4])
 
-	//~ 1910 1911
 	vars = make([]*lang.Rexx, 5)
 	vars[1] = five
 	vars[3] = five
 	lang.Parse(lang.ToRxFromString("Flying pigs have wings"), []rune{7, 1, 10, 1, 0, 8, 3, 10, 1, 2, 1, 10, 1, 4, 0}, vars)
-	//lang.SayRexx(vars[0])
-	//lang.SayRexx(vars[1])
-	//lang.SayRexx(vars[2])
-	//lang.SayRexx(vars[3])
-	//lang.SayRexx(vars[4])
 
-	//~ 1912 1914 1915
 	vars = make([]*lang.Rexx, 5)
 	vars[1] = five
 	vars[3] = five
 	lang.Parse(lang.ToRxFromString("Flying pigs have wings"), []rune{7, 1, 10, 1, 0, 9, 3, 10, 1, 2, 1, 10, 1, 4, 0}, vars)
-	//lang.SayRexx(vars[0])
-	//lang.SayRexx(vars[1])
-	//lang.SayRexx(vars[2])
-	//lang.SayRexx(vars[3])
-	//lang.SayRexx(vars[4])
 
-	//~ 1931
 	vars = make([]*lang.Rexx, 7)
 	vars[1] = five
 	vars[3] = five
 	lang.Parse(lang.ToRxFromString(""), []rune{7, 1, 10, 1, 0, 7, 3, 10, 1, 2, 5, 1, 2, 10, 1, 4, 1, 10, 2, 5, 6, 0}, vars)
-	//lang.SayRexx(vars[0])
-	//lang.SayRexx(vars[1])
-	//lang.SayRexx(vars[2])
-	//lang.SayRexx(vars[3])
-	//lang.SayRexx(vars[4])
-	//lang.SayRexx(vars[5])
-	//lang.SayRexx(vars[6])
 
-	//~ 1934 1937
 	vars = make([]*lang.Rexx, 5)
 	lang.Parse(lang.ToRxFromString("This a remark field (up to 39 chars)   44 55 //66    77"), []rune{2, 2, 47, 47, 10, 3, 0, 1, 2, 1, 10, 3, 3, 4, 2, 0}, vars)
-	//lang.SayRexx(vars[0])
-	//lang.SayRexx(vars[1])
-	//lang.SayRexx(vars[2])
-	//lang.SayRexx(vars[3])
-	//lang.SayRexx(vars[4])
 
 	vars = make([]*lang.Rexx, 3)
 	lang.Parse(lang.ToRxFromString("This is a sentence."), []rune{1, 10, 3, 0, 1, 2, 0}, vars)
-	//lang.SayRexx(vars[0])
-	//lang.SayRexx(vars[1])
-	//lang.SayRexx(vars[2])
 
 	vars = make([]*lang.Rexx, 2)
 	lang.Parse(lang.ToRxFromString("To be, or not to be?"), []rune{2, 1, 44, 10, 1, 0, 1, 10, 1, 1, 0}, vars)
-	//lang.SayRexx(vars[0])
-	//lang.SayRexx(vars[1])
 
 	vars = make([]*lang.Rexx, 4)
 	lang.Parse(lang.ToRxFromString("To be, or not to be?"), []rune{2, 1, 44, 10, 1, 0, 1, 10, 3, 1, 2, 3, 0}, vars)
-	//lang.SayRexx(vars[0])
-	//lang.SayRexx(vars[1])
-	//lang.SayRexx(vars[2])
-	//lang.SayRexx(vars[3])
-
-	// vars = make([]*lang.Rexx, 4)
-	// vars[1] = lang.RxFromRune(',')
-	// lang.Parse(lang.ToRxFromString("To be, or not to be?"), []rune{6, 1, 10, 1, 0, 1, 10, 3, 2, 3, 4, 0}, vars)
-	//lang.SayRexx(vars[0])
-	//lang.SayRexx(vars[1])
-	//lang.SayRexx(vars[2])
-	//lang.SayRexx(vars[3])
 
 	vars = make([]*lang.Rexx, 2)
 	lang.Parse(lang.ToRxFromString("Flying pigs have wings"), []rune{3, 1, 5, 10, 1, 0, 1, 10, 1, 1, 0}, vars)
-	//lang.SayRexx(vars[0])
-	//lang.SayRexx(vars[1])
 
 	vars = make([]*lang.Rexx, 3)
 	lang.Parse(lang.ToRxFromString("Flying pigs have wings"), []rune{3, 1, 5, 10, 1, 0, 3, 1, 10, 10, 1, 1, 1, 10, 1, 2, 0}, vars)
-	//lang.SayRexx(vars[0])
-	//lang.SayRexx(vars[1])
-	//lang.SayRexx(vars[2])
 
 	vars = make([]*lang.Rexx, 3)
 	lang.Parse(lang.ToRxFromString("Flying pigs have wings"), []rune{3, 1, 5, 10, 1, 0, 4, 1, 5, 10, 1, 1, 1, 10, 1, 2, 0}, vars)
-	//lang.SayRexx(vars[0])
-	//lang.SayRexx(vars[1])
-	//lang.SayRexx(vars[2])
 
 	vars = make([]*lang.Rexx, 3)
 	lang.Parse(lang.ToRxFromString("123456789"), []rune{3, 1, 3, 4, 1, 3, 10, 1, 0, 3, 1, 3, 10, 1, 1, 1, 10, 1, 2, 0}, vars)
-	//lang.SayRexx(vars[0])
-	//lang.SayRexx(vars[1])
-	//lang.SayRexx(vars[2])
 
 	vars = make([]*lang.Rexx, 0)
 	lang.Parse(lang.ToRxFromString("1234 56789"), []rune{5, 0, 4, 0, 0}, vars)
-	//lang.SayRexx(vars[0])
 
 	vars = make([]*lang.Rexx, 4)
 	lang.Parse(lang.ToRxFromString("L/look for/1 10"), []rune{3, 1, 2, 10, 1, 0, 4, 1, 1, 10, 1, 1, 6, 1, 10, 1, 2, 1, 10, 1, 3, 0}, vars)
-	//lang.SayRexx(vars[0])
-	//lang.SayRexx(vars[1])
-	//lang.SayRexx(vars[2])
-	//lang.SayRexx(vars[3])
 
 	vars = make([]*lang.Rexx, 4)
 	lang.Parse(lang.ToRxFromString(""), []rune{3, 1, 2, 10, 1, 0, 4, 1, 1, 10, 1, 1, 6, 1, 10, 1, 2, 1, 10, 1, 3, 0}, vars)
-	//lang.SayRexx(vars[0])
-	//lang.SayRexx(vars[1])
-	//lang.SayRexx(vars[2])
-	//lang.SayRexx(vars[3])
 
 	vars = make([]*lang.Rexx, 4)
 	lang.Parse(lang.ToRxFromString("MINUS"), []rune{3, 1, 2, 10, 1, 0, 5, 1, 10, 10, 1, 1, 6, 1, 10, 1, 2, 1, 10, 1, 3, 0}, vars)
-	//lang.SayRexx(vars[0])
-	//lang.SayRexx(vars[1])
-	//lang.SayRexx(vars[2])
-	//lang.SayRexx(vars[3])
 
 	vars = make([]*lang.Rexx, 4)
-	lang.Parse(lang.RxFromInt(0), []rune{3, 0, 0}, vars)
-	//lang.SayRexx(vars[0])
-	//lang.SayRexx(vars[1])
-	//lang.SayRexx(vars[2])
-	//lang.SayRexx(vars[3])
+	lang.Parse(lang.RxFromInt32(0), []rune{3, 0, 0}, vars)
 
-	//lang.RxFromRune('\u06EF')
-	// bb, err := lang.X2b(lang.RxFromString("1775"))
-	// if err != nil {
-	// 	lang.SayString("XXXX")
+	// Working on
+	insmallFloat32 := lang.RxFromFloat32(math.SmallestNonzeroFloat32)
+	//lang.SayRexx(insmallFloat32)
+	outsmallFloat32, err := insmallFloat32.ToFloat32()
+	// Overflow
+	if err == nil {
+		fmt.Println(err)
+		lang.SayString("BUG8093")
+	}
+	//"1.401298464324817e-45"
+	//fmt.Println(math.SmallestNonzeroFloat32)
+	// if !(outsmallFloat32 == math.SmallestNonzeroFloat32) {
+	// 	//fmt.Println(outsmallFloat32)
+	// 	lang.SayString("BUG1636")
 	// }
-	// fmt.Println(string(bb))
-	//lang.RxFromRune('\u06F1')
-	//"9223372036854775807"
-	// LB, err := lang.RxFromString("9223372036854775807").D2b(lang.RxFromString("63"))
-	// lang.SayRexx(LB)
-	//18,446,744,073,709,551,615
-	// LB, err = lang.RxFromString("18446744073709551615").D2b(lang.RxFromString("64"))
-	// lang.SayRexx(LB)
+	outsmallFloat32, err = lang.RxFromString("1.401298464324817e-45").ToFloat32()
+	//fmt.Println(outsmallFloat32)
+	//fmt.Println(math.SmallestNonzeroFloat32)
+	if outsmallFloat32 != math.SmallestNonzeroFloat32 {
+		lang.SayString("BUG1634")
+	}
+
+	// OUT OF MEMORY
+	// b2d, err = lang.RxFromString("123").B2d(lang.RxFromInt32(lang.MaxExp))
+
+	// OUT OF MEMORY
+	// lang.RxFromString("12.3").Trunc(lang.RxFromInt32(lang.MaxArg))
+
+	// OUT OF MEMORY
+	// bigcopy, err := one.Copies(lang.RxFromInt32(66846720))
+	// if bigcopy == nil {
+	// 	lang.SayString("BOMB")
+	// }
+	// bigcopy.Right(one, zero)
+
+	// OUT OF MEMORY
+	// one.Copies(lang.RxFromInt32(99999999))
+
+	// INDEX OUT OF RANGE
+	// fmt.Println(lang.Space([]rune{64, 32, 32, 54}, -10000, 32))
+	// lang.Space([]rune{32, 65}, 1, 32)
+
+	// FIXME index out of range [4] with length 4 malformed []rune{}
+	// vars = make([]*lang.Rexx, 4)
+	// vars[1] = lang.RxFromRune(',')
+	// lang.Parse(lang.ToRxFromString("To be, or not to be?"), []rune{6, 1, 10, 1, 0, 1, 10, 3, 2, 3, 4, 0}, vars)
 
 	return
 }

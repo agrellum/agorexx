@@ -36,9 +36,6 @@ func AskOne() *Rexx {
 }
 
 func SayString(str string) bool {
-	// if str == nil {
-	// 	return Say(nil)
-	// }
 	return Say([]rune(str))
 }
 

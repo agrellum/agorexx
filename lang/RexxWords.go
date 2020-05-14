@@ -8,18 +8,18 @@ func RxWords() (rcvr *RexxWords) {
 	return
 }
 
-func Abbrev(a []rune, b []rune, leng int) bool {
-	if (len(a) < leng) || (len(b) < leng) {
+func Abbrev(a []rune, b []rune, leng int32) bool {
+	if (int32(len(a)) < leng) || (int32(len(b)) < leng) {
 		return false
 	}
-	if len(b) > len(a) {
+	if int32(len(b)) > int32(len(a)) {
 		return false
 	}
-	if (len(b) == 0) && (leng == 0) {
+	if (int32(len(b)) == 0) && (leng == 0) {
 		return true
 	}
-	_1 := len(b) - 1
-	i := 0
+	_1 := int32(len(b)) - 1
+	var i int32 = 0
 	for ; i <= _1; i++ {
 		if a[i] != b[i] {
 			return false
@@ -28,8 +28,8 @@ func Abbrev(a []rune, b []rune, leng int) bool {
 	return true
 }
 
-func Centre(s []rune, wid int, pad rune) []rune {
-	chop := len(s) - wid
+func Centre(s []rune, wid int32, pad rune) []rune {
+	chop := int32(len(s)) - wid
 	if chop == 0 {
 		return s
 	}
@@ -54,13 +54,13 @@ func Centre(s []rune, wid int, pad rune) []rune {
 }
 
 func Changestr(needle []rune, haystack []rune, _new []rune) []rune {
-	p := 0
-	i := 0
+	var p int32 = 0
+	var i int32 = 0
 	reps := CountStr(needle, haystack)
-	newlen := len(haystack) + reps*(len(_new)-len(needle))
+	newlen := int32(len(haystack)) + reps*(int32(len(_new))-int32(len(needle)))
 	res := make([]rune, newlen)
-	oin := 0
-	out := 0
+	var oin int32 = 0
+	var out int32 = 0
 	_4 := reps
 	for ; _4 > 0; _4-- {
 		p = Pos(needle, haystack, oin+1)
@@ -70,15 +70,15 @@ func Changestr(needle []rune, haystack []rune, _new []rune) []rune {
 			res[out] = haystack[i]
 			out++
 		}
-		_6 := len(_new) - 1
-		i = 0
+		_6 := int32(len(_new)) - 1
+		var i int32 = 0
 		for ; i <= _6; i++ {
 			res[out] = _new[i]
 			out++
 		}
-		oin = p + len(needle) - 1
+		oin = p + int32(len(needle)) - 1
 	}
-	_7 := len(haystack) - 1
+	_7 := int32(len(haystack)) - 1
 	i = oin
 	for ; i <= _7; i++ {
 		res[out] = haystack[i]
@@ -87,19 +87,19 @@ func Changestr(needle []rune, haystack []rune, _new []rune) []rune {
 	return res
 }
 
-func Compare(a []rune, b []rune, pad rune) int {
-	maxlen := len(a)
-	if len(b) > maxlen {
-		maxlen = len(b)
+func Compare(a []rune, b []rune, pad rune) int32 {
+	maxlen := int32(len(a))
+	if int32(len(b)) > maxlen {
+		maxlen = int32(len(b))
 	}
 	_8 := maxlen
-	i := 1
+	var i int32 = 1
 	for ; i <= _8; i++ {
-		if i > len(a) {
+		if i > int32(len(a)) {
 			if b[i-1] != pad {
 				return i
 			}
-		} else if i > len(b) {
+		} else if i > int32(len(b)) {
 			if a[i-1] != pad {
 				return i
 			}
@@ -112,42 +112,42 @@ func Compare(a []rune, b []rune, pad rune) int {
 	return 0
 }
 
-func CountStr(needle []rune, haystack []rune) int {
-	count := 0
+func CountStr(needle []rune, haystack []rune) int32 {
+	var count int32 = 0
 	p := Pos(needle, haystack, 1)
 	for {
 		if !(p > 0) {
 			break
 		}
 		count++
-		p = Pos(needle, haystack, p+len(needle))
+		p = Pos(needle, haystack, p+int32(len(needle)))
 	}
 	return count
 }
 
-func DelStr(s []rune, start int, leng int) []rune {
+func DelStr(s []rune, start int32, leng int32) []rune {
 	if leng == 0 {
 		return s
 	}
-	if start > len(s) {
+	if start > int32(len(s)) {
 		return s
 	}
 	fin := start + leng
-	if fin > len(s) {
-		fin = len(s) + 1
+	if fin > int32(len(s)) {
+		fin = int32(len(s)) + 1
 	}
-	need := start + len(s) - fin
+	need := start + int32(len(s)) - fin
 	res := make([]rune, need)
 	if start > 1 {
 		copy(res, s)
 	}
-	if fin <= len(s) {
+	if fin <= int32(len(s)) {
 		copy(res[start-1:], s[fin-1:])
 	}
 	return res
 }
 
-func DelWord(s []rune, num int, leng int) []rune {
+func DelWord(s []rune, num int32, leng int32) []rune {
 	if leng == 0 {
 		return s
 	}
@@ -157,95 +157,95 @@ func DelWord(s []rune, num int, leng int) []rune {
 	}
 	fin := WordIndex(s, num+leng)
 	if fin == 0 {
-		fin = len(s) + 1
+		fin = int32(len(s)) + 1
 	}
-	need := start + len(s) - fin
+	need := start + int32(len(s)) - fin
 	res := make([]rune, need)
 	if start > 1 {
 		copy(res, s)
 	}
-	if fin <= len(s) {
+	if fin <= int32(len(s)) {
 		copy(res[start-1:], s[fin-1:])
 	}
 	return res
 }
 
-func Insert(chars []rune, newchars []rune, num int, leng int, padchar rune) []rune {
-	i := 0
+func Insert(chars []rune, newchars []rune, num int32, leng int32, padchar rune) []rune {
+	var i int32 = 0
 	reslen := num + leng
-	if num < len(chars) {
-		reslen = reslen + len(chars) - num
+	if num < int32(len(chars)) {
+		reslen = reslen + int32(len(chars)) - num
 	}
 	res := make([]rune, reslen)
 	if num > 0 {
-		if num <= len(chars) {
+		if num <= int32(len(chars)) {
 			copy(res, chars[0:num])
 		} else {
 			copy(res, chars)
 			_9 := num - 1
-			i = len(chars)
+			i = int32(len(chars))
 			for ; i <= _9; i++ {
 				res[i] = padchar
 			}
 		}
 	}
 	if leng > 0 {
-		if leng <= len(newchars) {
+		if leng <= int32(len(newchars)) {
 			copy(res[num:], newchars[0:leng])
 		} else {
 			copy(res[num:], newchars)
 			_10 := leng - 1
-			i = len(newchars)
+			i = int32(len(newchars))
 			for ; i <= _10; i++ {
 				res[num+i] = padchar
 			}
 		}
 	}
-	if num < len(chars) {
+	if num < int32(len(chars)) {
 		copy(res[num+leng:], chars[num:])
 	}
 	return res
 }
 
-func Overlay(chars []rune, newchars []rune, num int, leng int, padchar rune) []rune {
-	i := 0
+func Overlay(chars []rune, newchars []rune, num int32, leng int32, padchar rune) []rune {
+	var i int32 = 0
 	reslen := num + leng - 1
-	if reslen < len(chars) {
-		reslen = len(chars)
+	if reslen < int32(len(chars)) {
+		reslen = int32(len(chars))
 	}
 	res := make([]rune, reslen)
 	if num > 1 {
-		if num-1 <= len(chars) {
-			copy(res, chars[0:num-1]) //FIXME
+		if num-1 <= int32(len(chars)) {
+			copy(res, chars[0:num-1]) //TODO RECHECK SLICE PARAMS
 		} else {
 			copy(res, chars)
 			_11 := num - 2
-			i = len(chars)
+			i = int32(len(chars))
 			for ; i <= _11; i++ {
 				res[i] = padchar
 			}
 		}
 	}
 	if leng > 0 {
-		if leng <= len(newchars) {
-			copy(res[num-1:], newchars[0:leng]) //FIXME
+		if leng <= int32(len(newchars)) {
+			copy(res[num-1:], newchars[0:leng]) //TODO RECHECK SLICE PARAMS
 		} else {
 			copy(res[num-1:], newchars)
 			_12 := leng - 1
-			i = len(newchars)
+			i = int32(len(newchars))
 			for ; i <= _12; i++ {
 				res[num-1+i] = padchar
 			}
 		}
 	}
-	if num+leng-1 < len(chars) {
-		copy(res[(num+leng)-1:], chars[(num+leng)-1:]) //FIXME
+	if num+leng-1 < int32(len(chars)) {
+		copy(res[(num+leng)-1:], chars[(num+leng)-1:]) //TODO RECHECK SLICE PARAMS
 	}
 	return res
 }
 
-func Nextblank(s []rune, start int) int {
-	_13 := len(s)
+func Nextblank(s []rune, start int32) int32 {
+	_13 := int32(len(s))
 	i := start
 	for ; i <= _13; i++ {
 		if s[i-1] == ' ' {
@@ -255,8 +255,8 @@ func Nextblank(s []rune, start int) int {
 	return 0
 }
 
-func Nextnonblank(s []rune, start int) int {
-	_14 := len(s)
+func Nextnonblank(s []rune, start int32) int32 {
+	_14 := int32(len(s))
 	i := start
 	for ; i <= _14; i++ {
 		if s[i-1] != ' ' {
@@ -266,16 +266,16 @@ func Nextnonblank(s []rune, start int) int {
 	return 0
 }
 
-func Pos(needle []rune, haystack []rune, start int) int {
+func Pos(needle []rune, haystack []rune, start int32) int32 {
 	if len(needle) == 0 {
 		return 0
 	}
-	_16 := len(haystack) - len(needle) + 1
+	_16 := int32(len(haystack)) - int32(len(needle)) + 1
 	i := start
 i:
 	for ; i <= _16; i++ {
-		_17 := len(needle) - 1
-		j := 0
+		_17 := int32(len(needle)) - 1
+		var j int32 = 0
 		for ; j <= _17; j++ {
 			if needle[j] != haystack[i+j-1] {
 				continue i
@@ -286,10 +286,10 @@ i:
 	return 0
 }
 
-func Space(s []rune, gap int, pad rune) []rune {
-	start := 1
-	count := 0
-	nonspaces := 0
+func Space(s []rune, gap int32, pad rune) []rune {
+	var start int32 = 1
+	var count int32 = 0
+	var nonspaces int32 = 0
 	for {
 		start = Nextnonblank(s, start)
 		if start == 0 {
@@ -298,7 +298,7 @@ func Space(s []rune, gap int, pad rune) []rune {
 		count++
 		nextblank := Nextblank(s, start+1)
 		if nextblank == 0 {
-			nonspaces = nonspaces + len(s) + 1 - start
+			nonspaces = nonspaces + int32(len(s)) + 1 - start
 			break
 		}
 		nonspaces = nonspaces + nextblank - start
@@ -310,9 +310,9 @@ func Space(s []rune, gap int, pad rune) []rune {
 	leng := (count-1)*gap + nonspaces
 	res := make([]rune, leng)
 	start = 1
-	out := 0
+	var out int32 = 0
 	_19 := count
-	c := 1
+	var c int32 = 1
 c:
 	for ; c <= _19; c++ {
 		start = Nextnonblank(s, start)
@@ -323,7 +323,7 @@ c:
 		for {
 			res[out] = s[start-1]
 			start++
-			if start > len(s) {
+			if start > int32(len(s)) {
 				break c
 			}
 			out++
@@ -343,7 +343,7 @@ c:
 	return res
 }
 
-func SubWord(s []rune, num int, leng int) []rune {
+func SubWord(s []rune, num int32, leng int32) []rune {
 	if leng == 0 {
 		return make([]rune, 0)
 	}
@@ -353,7 +353,7 @@ func SubWord(s []rune, num int, leng int) []rune {
 	}
 	fin := WordIndex(s, num+leng)
 	if fin == 0 {
-		fin = len(s) + 1
+		fin = int32(len(s)) + 1
 	}
 	_22 := start
 	fin = fin - 1
@@ -368,17 +368,17 @@ func SubWord(s []rune, num int, leng int) []rune {
 	return res
 }
 
-func Verify(s []rune, v []rune, opt rune, start int) int {
+func Verify(s []rune, v []rune, opt rune, start int32) int32 {
 	if opt == 'N' {
 		return Verifyn(s, v, start)
 	}
 	return Verifym(s, v, start)
 }
 
-func Verifym(s []rune, v []rune, start int) int {
+func Verifym(s []rune, v []rune, start int32) int32 {
 	_try := rune(0)
-	t := 0
-	last := len(s)
+	var t int32 = 0
+	last := int32(len(s))
 	if start > last {
 		return 0
 	}
@@ -400,9 +400,9 @@ func Verifym(s []rune, v []rune, start int) int {
 	return 0
 }
 
-func Verifyn(s []rune, v []rune, start int) int {
-	t := 0
-	last := len(s)
+func Verifyn(s []rune, v []rune, start int32) int32 {
+	var t int32 = 0
+	last := int32(len(s))
 	if start > last {
 		return 0
 	}
@@ -420,13 +420,14 @@ func Verifyn(s []rune, v []rune, start int) int {
 	return 0
 }
 
-func Word(s []rune, num int) []rune {
+func Word(s []rune, num int32) []rune {
 	return SubWord(s, num, 1)
 }
 
-func WordIndex(s []rune, num int) int {
-	start := 1
-	for count := 1; ; count++ {
+func WordIndex(s []rune, num int32) int32 {
+	var start int32 = 1
+	var count int32
+	for count = 1; ; count++ {
 		start = Nextnonblank(s, start)
 		if start == 0 {
 			return 0
@@ -442,20 +443,20 @@ func WordIndex(s []rune, num int) int {
 	return start
 }
 
-func WordLength(s []rune, num int) int {
+func WordLength(s []rune, num int32) int32 {
 	start := WordIndex(s, num)
 	if start == 0 {
 		return 0
 	}
 	fin := Nextblank(s, start+1)
 	if fin == 0 {
-		fin = len(s) + 1
+		fin = int32(len(s)) + 1
 	}
 	return fin - start
 }
 
-func WordPos(needle []rune, haystack []rune, wpos int) int {
-	nlen := len(needle)
+func WordPos(needle []rune, haystack []rune, wpos int32) int32 {
+	nlen := int32(len(needle))
 	if nlen == 0 {
 		return 0
 	}
@@ -467,7 +468,7 @@ func WordPos(needle []rune, haystack []rune, wpos int) int {
 	if hbeg == 0 {
 		return 0
 	}
-	hlen := len(haystack)
+	hlen := int32(len(haystack))
 _26:
 	for {
 		nb := nbeg
@@ -522,9 +523,9 @@ _26:
 	return 0
 }
 
-func Words(s []rune) int {
-	start := 1
-	count := 0
+func Words(s []rune) int32 {
+	var start int32 = 1
+	var count int32 = 0
 	for {
 		start = Nextnonblank(s, start)
 		if start == 0 {

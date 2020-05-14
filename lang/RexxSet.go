@@ -3,12 +3,12 @@ package lang
 const SCIENTIFIC int8 = 0
 const ENGINEERING int8 = 1
 const PLAIN int8 = 2
-const DEFAULT_DIGITS int = 9
+const DEFAULT_DIGITS int32 = 9
 
 const DEFAULT_FORM = SCIENTIFIC
 
 type RexxSet struct {
-	Digits int
+	Digits int32
 	Form   int8
 }
 
@@ -19,13 +19,13 @@ func RxSet() (rcvr *RexxSet) {
 	return
 }
 
-func RxSetWithDigit(newdigits int) (rcvr *RexxSet) {
+func RxSetWithDigit(newdigits int32) (rcvr *RexxSet) {
 	rcvr = RxSet()
 	rcvr.Digits = newdigits
 	return
 }
 
-func RxSetWithDigitandForm(newdigits int, newform int8) (rcvr *RexxSet) {
+func RxSetWithDigitandForm(newdigits int32, newform int8) (rcvr *RexxSet) {
 	rcvr = RxSet()
 	rcvr.Digits = newdigits
 	rcvr.Form = newform
@@ -58,8 +58,8 @@ func (rcvr *RexxSet) SetDigits(d *Rexx) error {
 		}
 		test := rx01.OpEqS(nil, RxFromRune('1'))
 		if test {
-			if len(r.mant)+r.exp <= 9 {
-				num, err := r.ToInt()
+			if int32(len(r.mant))+r.exp <= 9 {
+				num, err := r.ToInt32()
 				if err != nil {
 					return err
 				}
