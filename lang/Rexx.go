@@ -19,10 +19,11 @@ const ispos int8 = 1
 const iszero int8 = 0
 const isneg int8 = -1
 const NotaNum int8 = -2
-const MinExp int32 = -999999999
-const MaxExp int32 = 999999999
-const MinArg int32 = -999999999
-const MaxArg int32 = 999999999
+
+var MinExp int32 = -999999999
+var MaxExp int32 = 999999999
+var MinArg int32 = -999999999
+var MaxArg int32 = 999999999
 
 type Rexx struct {
 	chars []rune
@@ -3195,7 +3196,7 @@ func (rcvr *Rexx) Clear() {
 	return
 }
 
-func (rcvr *Rexx) CompareTo(i2 string) (int, error) {
+func (rcvr *Rexx) CompareTo(i2 string) (int32, error) {
 	j := RxFromString(i2)
 	lt, err := rcvr.OpLt(nil, j)
 	if err != nil {
@@ -3304,6 +3305,7 @@ func (rcvr *Rexx) Size(check int) int32 {
 		icount++
 		rx01, _ := RxFromInt32(int32(check)).ToBool()
 		if rx01 {
+			rcvr.mux.Unlock()
 			return 1
 		}
 	}

@@ -1201,6 +1201,9 @@ func main() {
 		lang.SayString("BUG3336")
 	}
 
+	//~ 1849 Look closer at logic
+	merged.Size(1)
+
 	//FIXME REXX RETURNS
 	bar.CopyIndexed(foo)
 	lang.RxFromEmpty().CopyIndexed(foo)
@@ -3218,6 +3221,11 @@ func main() {
 	// kb := lang.AskOne()
 	// lang.SayRexx(kb)
 
+	//lang.SayString("Enter something:")
+	//lang.Ask()
+	//lang.SayString("Enter something else:")
+	//lang.AskOne()
+
 	lang.SayString("you should see the lower case 'a' below")
 	lang.SayString("a")
 	lang.SayString("another lower case 'a'")
@@ -3301,9 +3309,6 @@ func main() {
 	lang.Format(lower_a, 1, 1, 1, 1, 'S')
 
 	lang.Format(one_point_zero, 0, 0, 0, 0, 'E')
-
-	//~ MEMORY drop MAX MINS
-	//format, err = lang.RxFromString(".022E-999").Format(five, lang.RxFromInt32(lang.MaxExp-1000), five, five, lang.RxFromRune('P'))
 
 	lang.Format(lang.RxFromString(".1"), 0, 0, lang.MinExp+1, 0, 'E')
 
@@ -3463,6 +3468,183 @@ func main() {
 	// vars = make([]*lang.Rexx, 4)
 	// vars[1] = lang.RxFromRune(',')
 	// lang.Parse(lang.ToRxFromString("To be, or not to be?"), []rune{6, 1, 10, 1, 0, 1, 10, 3, 2, 3, 4, 0}, vars)
+
+	//~ 1506
+	lang.ToRxFromString("-0.9e-999999999").Trunc(lang.ToRxFromString("-00"))
+
+	//~ 1151
+	lang.ToRxFromString("+00678.5432").ToInt64()
+
+	//~ 1580
+	lang.ToRxFromString("-0.9e-999999999").OpMinus(nil)
+
+	//~ 1585
+	lang.ToRxFromString("-0.9e-999999999").OpPlus(nil)
+
+	//~ 1597
+	lang.ToRxFromString("-0.9e-999999999").OpAdd(nil, lang.ToRxFromString("-00"))
+
+	//~ 1672
+	lang.ToRxFromString("7198.0493E+436250299").OpPow(nil, lang.ToRxFromString("71E+2"))
+
+	//~ 1675
+	lang.ToRxFromString("+1.1E-999999999").OpPow(nil, lang.ToRxFromString("+10"))
+
+	//~ 1855
+	//NEED ALL FOUR LINES TO TRIGGER
+	parta := lang.ToRxFromString("00.E+2")
+	partb := lang.ToRxFromString("00.E+4")
+	parta.GetNode(partb)
+	parta.Remove(partb)
+	//NEED ALL FOUR LINES TO TRIGGER
+
+	//~ 1172
+	lang.RxFromRune(0x11452).ToFloat64()
+
+	// Change Limits for low memory machines
+
+	lang.MinExp = -9999
+	lang.MaxExp = 9999
+	lang.MinArg = -9999
+	lang.MaxArg = 9999
+
+	//~ 2049 MEMORY drop MAX MINS
+	format, err = lang.RxFromString(".022E-999").Format(five, lang.RxFromInt32(lang.MaxExp-1000), five, five, lang.RxFromRune('P'))
+
+	//~ 1245 if dropped like above
+	lang.RxFromString("1").B2d(lang.RxFromString("9999"))
+
+	//~ 1360
+	lang.RxFromString("000000").D2b(lang.RxFromString("-1"))
+
+	// Show NaN & Infinity Results
+	outcome, err := lang.ToRxFromFloat64(math.NaN(), 9)
+	if err != nil {
+		fmt.Println(err)
+	} else {
+		lang.SayRexx(outcome)
+	}
+
+	outcome, err = lang.ToRxFromFloat64(math.Inf(1), 9)
+	if err != nil {
+		fmt.Println(err)
+	} else {
+		lang.SayRexx(outcome)
+	}
+
+	outcome, err = lang.ToRxFromFloat64(math.Inf(-1), 9)
+	if err != nil {
+		fmt.Println(err)
+	} else {
+		lang.SayRexx(outcome)
+	}
+
+	// FIXME C2x RETURN 4 RUNES MAX
+
+	TestSet := lang.RxSetWithDigitandForm(17, int8(1))
+
+	//~ 1605 1814
+	lang.RxFromString("-56746.8689E+934981942").OpAdd(TestSet, lang.RxFromString("471002521."))
+
+	//~ 1548 1769
+	lang.RxFromString("9E+999999999").OpEq(TestSet, lang.RxFromString("+1.23456789012345E-0"))
+
+	//~ 1615
+	lang.RxFromString("+1.23456789012345E-0").OpEq(TestSet, lang.RxFromString("9E+999999999"))
+
+	//~ 1691
+	lang.RxFromString("3.93591888E-236595626").OpRem(TestSet, lang.RxFromString("7242375.00"))
+
+	//~ 2022
+	lang.Trunc(lang.RxFromString("70"), lang.MaxExp)
+
+	//~ 1732
+	TestSet = lang.RxSetWithDigitandForm(-2147483648, int8(1))
+	TestSet.SetDigits(lang.RxFromString("-1"))
+
+	//PANIC
+	//TestSet = lang.RxSetWithDigitandForm(-2147483547, int8(1))
+	//TestSet.SetDigits(lang.RxFromString("-1"))
+
+	//~ 1204 1205 1206
+	TestSet = lang.RxSetWithDigitandForm(17, int8(1))
+	TestSet.SetDigits(lang.RxFromString("70"))
+
+	//bigcopy, err := one.Copies(lang.RxFromInt32(lang.MaxArg))
+	//2147483647
+	// bigcopy, err := one.Copies(lang.RxFromInt32(lang.MaxArg))
+	// fmt.Println(err)
+	// lang.SayRexx(bigcopy.Length())
+
+	//lang.SayRexx(bigcopy)
+
+	// b2d, err = bigcopy.B2d(bigcopy)
+
+	//bigcopy.B2d(one)
+
+	//lang.RxFromString("1111000010000001").B2d(lang.RxFromInt32(100))
+
+	// lang.RxFromString("1.01E+999999999999999999999999999").B2d(lang.RxFromString("1"))
+
+	// lang.RxFromString("0.").ToInt32()
+	// lang.RxFromString("-.01234568").ToInt32()
+
+	// lang.RxFromString("1.").ToInt64()
+	// lang.RxFromString("-.01234568").ToInt64()
+
+	//~ 1416
+	lang.RxFromString("9.47109959E+230565093").Max(lang.RxFromString("73354723.2"))
+
+	//~ 1425
+	lang.RxFromString("9.47109959E+230565093").Min(lang.RxFromString("73354723.2"))
+
+	//~ 2050
+	lang.Format(lang.RxFromString("+0.001"), 1, 1, 1, 1, 'E')
+
+	//~ 2066
+	lang.Format(lang.RxFromString("+1E-6143"), 1, 1, 1, 1, 'E')
+
+	//~ 2077
+	lang.Format(lang.RxFromString("0.00003E-999"), -806563953, -498370919, 1769378409, 1775693531, 'E')
+
+	//~ 1453
+	Big, err := lang.RxFromInt32(lang.MaxArg).Copies(lang.RxFromInt32(lang.MaxArg))
+	Big.Right(lang.RxFromInt32(lang.MaxArg), lang.RxFromRune('۱'))
+
+	//~ 1328
+	lang.RxFromString("9.999E+999999999").DataType(lang.RxFromString("W"))
+
+	_A := lang.RxFromString("9.47109959E+230565093")
+	_B := lang.RxFromString("73354723.2")
+
+	//~ 1550
+	_A.OpNotEq(nil, _B)
+	//~ 1552
+	_A.OpLt(nil, _B)
+	//~ 1554
+	_A.OpGt(nil, _B)
+	//~ 1556
+	_A.OpLtEq(nil, _B)
+	//~ 1558
+	_A.OpGtEq(nil, _B)
+
+	//~ 1595
+	lang.RxFromString("0").OpAdd(nil, lang.RxFromString("-9.999E+999999999"))
+
+	//~ 1622
+	lang.RxFromString("1E+999999999").OpAdd(nil, lang.RxFromString("9E+999999999"))
+
+	//~ 1722
+	lang.RxFromString("1E+999999999").OpRem(nil, lang.RxFromString("9E+999999999"))
+
+	//~ 1728
+	lang.RxFromString("-1.1E-999999999").OpRem(nil, lang.RxFromString("1E-999999999"))
+
+	//~ 1552 1821
+	_A.CompareTo(_B.ToString())
+
+	//~ 1942
+	lang.RxFromString("-77e-9999999").D2b(lang.RxFromString("1"))
 
 	return
 }
